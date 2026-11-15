@@ -1,0 +1,88 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 160" width="100%" height="100%">
+  <defs>
+    <!-- Cap gradient (dark luxury wood) -->
+    <linearGradient id="capGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1A120E" />
+      <stop offset="25%" stop-color="#2C201A" />
+      <stop offset="60%" stop-color="#3D2D24" />
+      <stop offset="80%" stop-color="#241914" />
+      <stop offset="100%" stop-color="#140E0B" />
+    </linearGradient>
+
+    <!-- Gold neck gradient -->
+    <linearGradient id="goldNeck" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9E782F" />
+      <stop offset="30%" stop-color="#E5C158" />
+      <stop offset="55%" stop-color="#FFF2B2" />
+      <stop offset="75%" stop-color="#D4A737" />
+      <stop offset="100%" stop-color="#805C1B" />
+    </linearGradient>
+
+    <!-- Velvet Oud Amber Liquid Gradient -->
+    <linearGradient id="liquidAmber" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#E89635" />
+      <stop offset="35%" stop-color="#D1781E" />
+      <stop offset="70%" stop-color="#B25510" />
+      <stop offset="100%" stop-color="#7A3405" />
+    </linearGradient>
+
+    <!-- Glass Bottle Reflections -->
+    <linearGradient id="glassSheen" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.4" />
+      <stop offset="15%" stop-color="#FFFFFF" stop-opacity="0.1" />
+      <stop offset="50%" stop-color="#FFFFFF" stop-opacity="0" />
+      <stop offset="85%" stop-color="#FFFFFF" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0.3" />
+    </linearGradient>
+
+    <!-- Soft Drop Shadow -->
+    <filter id="bottleShadow" x="-15%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#4E342E" flood-opacity="0.18" />
+    </filter>
+  </defs>
+
+  <g filter="url(#bottleShadow)">
+    <!-- Cap (Dark Espresso / Ebony Wood) -->
+    <rect x="42" y="8" width="36" height="30" rx="3" fill="url(#capGrad)" />
+    <!-- Cap top subtle bevel -->
+    <rect x="43" y="9" width="34" height="2" rx="1" fill="#FFFFFF" fill-opacity="0.15" />
+    <line x1="43" y1="20" x2="77" y2="20" stroke="#000000" stroke-opacity="0.25" stroke-width="0.5" />
+
+    <!-- Gold Neck Collar -->
+    <rect x="48" y="38" width="24" height="7" rx="1" fill="url(#goldNeck)" />
+
+    <!-- Glass Bottle Outer Body -->
+    <rect x="22" y="45" width="76" height="98" rx="5" fill="#FFFFFF" fill-opacity="0.08" stroke="#4E342E" stroke-opacity="0.15" stroke-width="1" />
+
+    <!-- Inner Liquid Chamber -->
+    <rect x="27" y="50" width="66" height="84" rx="3" fill="url(#liquidAmber)" />
+
+    <!-- Liquid meniscus/top highlight -->
+    <path d="M 27 52 Q 60 55 93 52" stroke="#FFD899" stroke-width="1.5" fill="none" opacity="0.6" />
+
+    <!-- Thick Glass Base -->
+    <rect x="23" y="134" width="74" height="8" rx="2" fill="#EADCC7" fill-opacity="0.3" />
+
+    <!-- Paper Label Centered -->
+    <g transform="translate(36, 68)">
+      <!-- Label card -->
+      <rect x="0" y="0" width="48" height="48" rx="2" fill="#FDFBF7" stroke="#CBB499" stroke-width="0.75" />
+      <rect x="2" y="2" width="44" height="44" rx="1" fill="none" stroke="#D9C7B0" stroke-width="0.5" stroke-opacity="0.6" />
+
+      <!-- Sparkle Star Icon -->
+      <path d="M 24 9 Q 24 13 21 13 Q 24 13 24 17 Q 24 13 27 13 Q 24 13 24 9 Z" fill="#8C3A1A" />
+
+      <!-- Brand Logo 'kissa' -->
+      <text x="24" y="26" font-family="'Newsreader', Georgia, serif" font-size="11" font-weight="600" letter-spacing="0.5" fill="#3D261C" text-anchor="middle">kissa</text>
+
+      <!-- Subtext -->
+      <text x="24" y="34" font-family="'Inter', sans-serif" font-size="3.2" font-weight="500" letter-spacing="0.8" fill="#7D655A" text-anchor="middle">EAU DE PARFUM</text>
+      <text x="24" y="39" font-family="'Inter', sans-serif" font-size="3" letter-spacing="0.5" fill="#8C776D" text-anchor="middle">50 ML</text>
+    </g>
+
+    <!-- Glass Surface Specular Sheen (overlay on top) -->
+    <rect x="22" y="45" width="76" height="98" rx="5" fill="url(#glassSheen)" pointer-events="none" />
+    <!-- Left edge crisp highlight line -->
+    <line x1="24" y1="48" x2="24" y2="138" stroke="#FFFFFF" stroke-opacity="0.5" stroke-width="1" />
+  </g>
+</svg>

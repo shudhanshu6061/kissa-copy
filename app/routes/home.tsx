@@ -28,12 +28,24 @@ const PRODUCTS_QUERY = gql(`
 `);
 
 export async function loader({ context }: Route.LoaderArgs) {
-    const storefront = context.get(storefrontContext);
-    const { data } = await storefront.graphql(PRODUCTS_QUERY);
-
-    return {
-        products: data?.products.nodes ?? [],
-    };
+    try {
+        const storefront = context.get(storefrontContext);
+        if (!storefront) {
+            return { products: [] };
+        }
+        const { data, errors } = await storefront.graphql(PRODUCTS_QUERY);
+        if (errors) {
+            console.warn("Storefront returned query warnings on home:", errors);
+        }
+        return {
+            products: data?.products?.nodes ?? [],
+        };
+    } catch (err) {
+        console.warn("Home loader Storefront query failed, proceeding without products:", err);
+        return {
+            products: [],
+        };
+    }
 }
 
 export default function Home({ loaderData }: Route.ComponentProps) {

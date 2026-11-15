@@ -64,18 +64,37 @@ const PRODUCTS_QUERY = gql(`
 `);
 
 export async function loader({ context, request }: Route.LoaderArgs) {
-    const storefront = context.get(storefrontContext);
-    const after = new URL(request.url).searchParams.get("after");
+    try {
+        const storefront = context.get(storefrontContext);
+        const after = new URL(request.url).searchParams.get("after");
 
-    const { data } = await storefront.graphql(PRODUCTS_QUERY, {
-        variables: { first: PRODUCTS_PER_PAGE, after },
-    });
+        if (!storefront) {
+            return {
+                products: [],
+                pageInfo: { hasNextPage: false, endCursor: null },
+            };
+        }
 
-    return {
-        products: data?.products.nodes ?? [],
-        pageInfo:
-            data?.products.pageInfo ?? { hasNextPage: false, endCursor: null },
-    };
+        const { data, errors } = await storefront.graphql(PRODUCTS_QUERY, {
+            variables: { first: PRODUCTS_PER_PAGE, after },
+        });
+
+        if (errors) {
+            console.warn("Storefront returned query warnings on collections-all:", errors);
+        }
+
+        return {
+            products: data?.products?.nodes ?? [],
+            pageInfo:
+                data?.products?.pageInfo ?? { hasNextPage: false, endCursor: null },
+        };
+    } catch (err) {
+        console.warn("CollectionsAll loader Storefront query failed:", err);
+        return {
+            products: [],
+            pageInfo: { hasNextPage: false, endCursor: null },
+        };
+    }
 }
 
 // Category/search/sort live in the URL for shareable filtered views, but they

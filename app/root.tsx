@@ -10,6 +10,7 @@ import {
 import type { Route } from "./+types/root";
 
 import { storefrontContext, customerAccountContext } from "./lib/context";
+import { envContext } from "./lib/server-context";
 import { handleRequest } from "./lib/shopify";
 import { CartProvider } from "./context/CartContext";
 
@@ -17,8 +18,9 @@ import "./styles/global.css";
 
 // Hydrogen Middleware
 export const middleware: Route.MiddlewareFunction[] = [
-    ({ request, context }, next) =>
-        handleRequest(request, async (_request, storefrontClient, customerContext) => {
+    ({ request, context }, next) => {
+        const env = context.get(envContext);
+        return handleRequest(request, env, async (_request, storefrontClient, customerContext) => {
             if (storefrontClient) {
                 context.set(storefrontContext, storefrontClient);
             }
@@ -26,7 +28,8 @@ export const middleware: Route.MiddlewareFunction[] = [
                 context.set(customerAccountContext, customerContext);
             }
             return next();
-        }),
+        });
+    },
 ];
 
 // Document Layout

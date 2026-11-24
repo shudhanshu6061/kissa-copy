@@ -13,7 +13,7 @@ import {
 import { routeTemplates } from "./route-templates";
 import { createRequestStorefrontClient } from "./storefront";
 import {
-  customerSession,
+  createRequestCustomerSession,
   createRequestCustomerAccountClient,
 } from "./customer-account.server";
 import { createAppSessionManager } from "./session.server";
@@ -21,18 +21,21 @@ import type { CustomerContextValue } from "./context";
 
 // Create server handlers for Hydrogen routes and Customer Account API
 const cartHandlers = createCartServerHandlers();
-const customerAccountHandlers = createCustomerAccountServerHandlers({
-  customerSession,
-});
 
 export async function handleRequest(
   request: Request,
+  env: Env,
   next: (
     request: Request,
     storefrontClient: StorefrontClient | null,
     customerContext: CustomerContextValue | null
   ) => Promise<Response>
 ): Promise<Response> {
+  const { customerSession } = createRequestCustomerSession(env);
+  const customerAccountHandlers = createCustomerAccountServerHandlers({
+    customerSession,
+  });
+
   let storefrontClient: StorefrontClient | null = null;
   let requestContext: any = null;
   let sessionManager: WritableCustomerSessionManager | null = null;
@@ -40,16 +43,15 @@ export async function handleRequest(
   let isLoggedIn = false;
 
   try {
-    storefrontClient = createRequestStorefrontClient(request);
+    storefrontClient = createRequestStorefrontClient(request, env);
     requestContext = storefrontClient.requestContext;
-    sessionManager = await createAppSessionManager(request);
+    sessionManager = await createAppSessionManager(request, env);
   } catch (err) {
     console.error("Failed to initialize Storefront or Session:", err);
   }
 
   if (storefrontClient && requestContext && sessionManager) {
     try {
-      // Handle Shopify-owned routes (OAuth authorize, login, logout, refresh, cart proxy, etc.)
       const shopifyResponse = handleShopifyRoutes({
         request,
         requestContext,
@@ -67,8 +69,14 @@ export async function handleRequest(
     }
 
     try {
-      isLoggedIn = await customerSession.isLoggedIn(sessionManager, requestContext);
-      customerAccount = createRequestCustomerAccountClient(requestContext);
+      isLoggedIn = await customerSession.isLoggedIn(
+        sessionManager,
+        requestContext,
+      );
+      customerAccount = createRequestCustomerAccountClient(
+        requestContext,
+        env,
+      );
     } catch (caErr) {
       console.error("Error checking customer auth state:", caErr);
     }
@@ -84,11 +92,10 @@ export async function handleRequest(
         }
       : null;
 
-  // Continue to React Router
   let response = await next(
     request,
     storefrontClient as StorefrontClient,
-    customerContextValue
+    customerContextValue,
   );
 
   // Handle Shopify redirects after 404
@@ -110,7 +117,7 @@ export async function handleRequest(
 
   response = new Response(response.body, response);
 
-  // Commit session changes (Set-Cookie headers) if present
+  // Commit session changes
   if (sessionManager?.commit) {
     try {
       const commitHeaders = await sessionManager.commit();

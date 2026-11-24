@@ -10,45 +10,53 @@ import {
 } from "@shopify/hydrogen";
 import { createAppSessionManager } from "./session.server";
 
-const shopId =
-  process.env.SHOP_ID ||
-  "102184911161";
+/**
+ * Creates a CustomerSession for the given env bindings.
+ * Called per-request so it uses the correct env values from Oxygen.
+ */
+export function createRequestCustomerSession(env: Env) {
+  const shopId = env.SHOP_ID || "102184911161";
+  const customerAccountApiClientId =
+    env.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID || "";
 
-const customerAccountApiClientId =
-  process.env.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID ||
-  "";
-
-function normalizeCustomerAccountApiUrl(rawUrl?: string, id?: string): string | undefined {
-  if (!rawUrl && !id) return undefined;
-  if (!rawUrl && id) return `https://shopify.com/authentication/${id}`;
-  if (rawUrl) {
-    const trimmed = rawUrl.trim().replace(/\/$/, "");
-    if (!trimmed.includes("/authentication/")) {
-      return trimmed.replace("shopify.com/", "shopify.com/authentication/");
+  function normalizeCustomerAccountApiUrl(
+    rawUrl?: string,
+    id?: string,
+  ): string | undefined {
+    if (!rawUrl && !id) return undefined;
+    if (!rawUrl && id) return `https://shopify.com/authentication/${id}`;
+    if (rawUrl) {
+      const trimmed = rawUrl.trim().replace(/\/$/, "");
+      if (!trimmed.includes("/authentication/")) {
+        return trimmed.replace("shopify.com/", "shopify.com/authentication/");
+      }
+      return trimmed;
     }
-    return trimmed;
+    return undefined;
   }
-  return undefined;
+
+  const customerAccountApiUrl = normalizeCustomerAccountApiUrl(
+    env.PUBLIC_CUSTOMER_ACCOUNT_API_URL,
+    shopId,
+  );
+
+  const customerSession = createCustomerSession({
+    shopId,
+    customerAccountApiClientId,
+    customerAccountApiUrl,
+  });
+
+  return { customerSession, shopId };
 }
-
-const customerAccountApiUrl = normalizeCustomerAccountApiUrl(
-  process.env.PUBLIC_CUSTOMER_ACCOUNT_API_URL,
-  shopId
-);
-
-// Official singleton CustomerSession instance configured with Shopify Store details
-export const customerSession = createCustomerSession({
-  shopId,
-  customerAccountApiClientId,
-  customerAccountApiUrl,
-});
 
 /**
  * Creates a Customer Account GraphQL client bound to the current request context.
  */
 export function createRequestCustomerAccountClient(
-  requestContext: ShopifyRequestContext
+  requestContext: ShopifyRequestContext,
+  env: Env,
 ): CustomerAccountClient {
+  const shopId = env.SHOP_ID || "102184911161";
   return createCustomerAccountClient({
     shopId,
     requestContext,
@@ -62,10 +70,15 @@ export function createRequestCustomerAccountClient(
  */
 export async function requireCustomerAccount(
   request: Request,
-  requestContext: ShopifyRequestContext
+  requestContext: ShopifyRequestContext,
+  env: Env,
 ) {
-  const sessionManager = await createAppSessionManager(request);
-  const loggedIn = await customerSession.isLoggedIn(sessionManager, requestContext);
+  const { customerSession } = createRequestCustomerSession(env);
+  const sessionManager = await createAppSessionManager(request, env);
+  const loggedIn = await customerSession.isLoggedIn(
+    sessionManager,
+    requestContext,
+  );
   const url = new URL(request.url);
   const returnTo = url.pathname + url.search;
 
@@ -73,21 +86,28 @@ export async function requireCustomerAccount(
     throw redirect(`/account/login?return_to=${encodeURIComponent(returnTo)}`);
   }
 
-  const accessToken = await customerSession.getAccessToken(sessionManager, requestContext);
+  const accessToken = await customerSession.getAccessToken(
+    sessionManager,
+    requestContext,
+  );
 
   if (!accessToken) {
-    // If we already refreshed once and still have no token, break potential loop
     if (url.searchParams.get("refreshed") === "1") {
-      throw redirect(`/account/login?return_to=${encodeURIComponent(url.pathname)}`);
+      throw redirect(
+        `/account/login?return_to=${encodeURIComponent(url.pathname)}`,
+      );
     }
 
     const refreshTarget = `/account/refresh?return_to=${encodeURIComponent(
-      `${url.pathname}?refreshed=1`
+      `${url.pathname}?refreshed=1`,
     )}`;
     throw redirect(refreshTarget);
   }
 
-  const customerAccount = createRequestCustomerAccountClient(requestContext);
+  const customerAccount = createRequestCustomerAccountClient(
+    requestContext,
+    env,
+  );
 
   return {
     sessionManager,
@@ -101,10 +121,12 @@ export async function requireCustomerAccount(
  */
 export async function getCustomerAuthState(
   request: Request,
-  requestContext?: ShopifyRequestContext
+  env: Env,
+  requestContext?: ShopifyRequestContext,
 ) {
   try {
-    const sessionManager = await createAppSessionManager(request);
+    const { customerSession } = createRequestCustomerSession(env);
+    const sessionManager = await createAppSessionManager(request, env);
     const reqCtx =
       requestContext ||
       createShopifyRequestContext({

@@ -1,367 +1,565 @@
-/* KISSA Luxury Customer Account System Styles */
+/* ==========================================================================
+   KISSA Customer Account Dashboard Styles
+   Design Tokens:
+   - Background: #F8F4E7
+   - Primary Text: #4E342E
+   - Accent: #CC5500
+   - Headings: Instrument Serif
+   - Body: Newsreader
+   - UI labels and buttons: Inter
+   ========================================================================== */
+
 :root {
-  --kissa-brown: #4e342e;
-  --kissa-ivory: #f8f4e7;
-  --kissa-orange: #cc5500;
-  --kissa-brown-light: #6d4c41;
-  --kissa-cream-card: #fdfbf7;
+  --kissa-bg: #f8f4e7;
+  --kissa-primary: #4e342e;
+  --kissa-primary-light: #6d4c41;
+  --kissa-accent: #cc5500;
+  --kissa-accent-hover: #b54900;
+  --kissa-card-bg: #ffffff;
+  --kissa-card-bg-subtle: #fdfbf7;
   --kissa-border: rgba(78, 52, 46, 0.14);
   --kissa-border-subtle: rgba(78, 52, 46, 0.08);
-  --kissa-shadow: 0 4px 20px -2px rgba(78, 52, 46, 0.06);
-  --kissa-shadow-hover: 0 8px 30px -4px rgba(78, 52, 46, 0.12);
+  --kissa-shadow-sm: 0 2px 8px -1px rgba(78, 52, 46, 0.04);
+  --kissa-shadow-md: 0 4px 16px -2px rgba(78, 52, 46, 0.08);
+  --kissa-shadow-lg: 0 8px 30px -4px rgba(78, 52, 46, 0.12);
+  --kissa-radius: 12px;
+  --kissa-radius-lg: 16px;
 }
 
-.kissa-account-page {
+/* Page Container */
+.kissa-account-container {
   width: 100%;
-  max-width: 1200px;
+  max-width: 1240px;
   margin: 0 auto;
   padding: 100px 24px 80px;
-  color: var(--kissa-brown);
+  color: var(--kissa-primary);
   font-family: "Newsreader", Georgia, serif;
 }
 
-/* Account Hero Header */
-.kissa-account-header {
-  border-bottom: 1px solid var(--kissa-border);
-  padding-bottom: 32px;
-  margin-bottom: 40px;
+/* Welcome Header Section */
+.kissa-welcome-section {
+  background: var(--kissa-card-bg);
+  border: 1px solid var(--kissa-border);
+  border-radius: var(--kissa-radius-lg);
+  padding: 32px 36px;
+  margin-bottom: 32px;
+  box-shadow: var(--kissa-shadow-sm);
   display: flex;
   flex-direction: column;
-  gap: 24px;
+  gap: 16px;
+  position: relative;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
-  .kissa-account-header {
+  .kissa-welcome-section {
     flex-direction: row;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
   }
 }
 
-.kissa-account-pretitle {
-  font-family: "Inter", sans-serif;
-  font-size: 0.75rem;
-  letter-spacing: 0.22em;
-  text-transform: uppercase;
-  color: var(--kissa-orange);
-  margin-bottom: 8px;
-  display: block;
+.kissa-welcome-content {
+  max-width: 680px;
 }
 
-.kissa-account-title {
+.kissa-welcome-heading {
   font-family: "Instrument Serif", Georgia, serif;
-  font-size: 2.75rem;
+  font-size: 2.4rem;
   font-weight: 400;
   line-height: 1.15;
-  color: var(--kissa-brown);
+  color: var(--kissa-primary);
   margin: 0 0 8px;
 }
 
-.kissa-account-subtitle {
+.kissa-welcome-desc {
+  font-family: "Newsreader", Georgia, serif;
   font-size: 1.1rem;
-  color: var(--kissa-brown-light);
+  line-height: 1.5;
+  color: var(--kissa-primary-light);
   margin: 0;
-  font-style: italic;
 }
 
-.kissa-account-actions-top {
-  display: flex;
+.kissa-welcome-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-}
-
-.kissa-account-logout-btn {
+  gap: 6px;
+  background: rgba(204, 85, 0, 0.08);
+  color: var(--kissa-accent);
+  border: 1px solid rgba(204, 85, 0, 0.18);
+  border-radius: 9999px;
+  padding: 6px 14px;
   font-family: "Inter", sans-serif;
   font-size: 0.8rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--kissa-brown);
-  background: transparent;
+}
+
+/* Dashboard 2-Column Layout */
+.kissa-dashboard-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+@media (min-width: 992px) {
+  .kissa-dashboard-layout {
+    grid-template-columns: 260px 1fr;
+  }
+}
+
+/* Sidebar Navigation */
+.kissa-sidebar {
+  background: var(--kissa-card-bg);
   border: 1px solid var(--kissa-border);
-  padding: 10px 20px;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+  border-radius: var(--kissa-radius-lg);
+  padding: 16px;
+  box-shadow: var(--kissa-shadow-sm);
 }
 
-.kissa-account-logout-btn:hover {
-  background: var(--kissa-brown);
-  color: var(--kissa-ivory);
-  border-color: var(--kissa-brown);
+@media (min-width: 992px) {
+  .kissa-sidebar {
+    position: sticky;
+    top: 96px;
+  }
 }
 
-/* Navigation Tabs */
-.kissa-account-nav {
+.kissa-sidebar-nav {
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  border-bottom: 1px solid var(--kissa-border);
-  margin-bottom: 40px;
-  padding-bottom: 1px;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.kissa-account-tab {
+/* Mobile Horizontal Scroll for Navigation */
+@media (max-width: 991px) {
+  .kissa-sidebar {
+    padding: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .kissa-sidebar-nav {
+    flex-direction: row;
+    gap: 8px;
+    width: max-content;
+  }
+}
+
+.kissa-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
   font-family: "Inter", sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
-  letter-spacing: 0.04em;
-  padding: 12px 20px;
-  color: var(--kissa-brown-light);
+  color: var(--kissa-primary-light);
   text-decoration: none;
-  border-bottom: 2px solid transparent;
   transition: all 0.2s ease;
   white-space: nowrap;
 }
 
-.kissa-account-tab:hover {
-  color: var(--kissa-brown);
+.kissa-nav-item:hover {
+  color: var(--kissa-primary);
+  background: rgba(78, 52, 46, 0.04);
 }
 
-.kissa-account-tab.active {
-  color: var(--kissa-orange);
-  border-bottom-color: var(--kissa-orange);
+.kissa-nav-item.active {
+  color: var(--kissa-accent);
+  background: rgba(204, 85, 0, 0.08);
   font-weight: 600;
+}
+
+.kissa-nav-item.active svg {
+  stroke: var(--kissa-accent);
+}
+
+.kissa-nav-icon {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  stroke: currentColor;
+}
+
+.kissa-nav-badge {
+  margin-left: auto;
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: var(--kissa-accent);
+  color: #ffffff;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+/* Sidebar Logout Form */
+.kissa-sidebar-logout {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--kissa-border-subtle);
+}
+
+@media (max-width: 991px) {
+  .kissa-sidebar-logout {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+    border-left: 1px solid var(--kissa-border-subtle);
+    padding-left: 8px;
+  }
+}
+
+.kissa-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  border: none;
+  background: transparent;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #c62828;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-align: left;
+}
+
+.kissa-logout-btn:hover {
+  background: rgba(198, 40, 40, 0.06);
+  color: #b71c1c;
+}
+
+/* Dashboard Main Content Area */
+.kissa-main-content {
+  min-width: 0;
+}
+
+/* Section Header */
+.kissa-section-header {
+  margin-bottom: 24px;
+}
+
+.kissa-section-title {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 2rem;
+  font-weight: 400;
+  color: var(--kissa-primary);
+  margin: 0 0 6px;
+}
+
+.kissa-section-desc {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1.05rem;
+  color: var(--kissa-primary-light);
+  margin: 0;
+  line-height: 1.5;
 }
 
 /* Cards & Surfaces */
 .kissa-card {
-  background: var(--kissa-cream-card);
+  background: var(--kissa-card-bg);
   border: 1px solid var(--kissa-border);
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: var(--kissa-shadow);
-  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+  border-radius: var(--kissa-radius-lg);
+  padding: 24px 28px;
+  box-shadow: var(--kissa-shadow-sm);
+  transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .kissa-card:hover {
-  box-shadow: var(--kissa-shadow-hover);
   border-color: rgba(78, 52, 46, 0.22);
+}
+
+.kissa-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--kissa-border-subtle);
 }
 
 .kissa-card-title {
   font-family: "Instrument Serif", Georgia, serif;
-  font-size: 1.6rem;
+  font-size: 1.5rem;
   font-weight: 400;
-  color: var(--kissa-brown);
-  margin: 0 0 16px;
+  color: var(--kissa-primary);
+  margin: 0;
 }
 
-/* Stat Grid */
-.kissa-grid-stats {
+/* Overview Stats Grid */
+.kissa-stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 24px;
-  margin-bottom: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+.kissa-stat-card {
+  background: var(--kissa-card-bg);
+  border: 1px solid var(--kissa-border);
+  border-radius: var(--kissa-radius);
+  padding: 20px 24px;
+  box-shadow: var(--kissa-shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kissa-stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--kissa-shadow-md);
 }
 
 .kissa-stat-label {
   font-family: "Inter", sans-serif;
   font-size: 0.75rem;
-  letter-spacing: 0.14em;
+  font-weight: 600;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--kissa-brown-light);
+  color: var(--kissa-primary-light);
   margin-bottom: 8px;
   display: block;
 }
 
 .kissa-stat-value {
   font-family: "Instrument Serif", Georgia, serif;
-  font-size: 2rem;
-  color: var(--kissa-brown);
+  font-size: 2.2rem;
+  line-height: 1;
+  color: var(--kissa-primary);
   margin-bottom: 6px;
 }
 
-.kissa-stat-desc {
-  font-size: 0.95rem;
-  color: var(--kissa-brown-light);
-  margin: 0;
+.kissa-stat-link {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--kissa-accent);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
-/* Orders List */
-.kissa-order-item {
+.kissa-stat-link:hover {
+  text-decoration: underline;
+}
+
+/* Orders List & Items */
+.kissa-order-card {
+  background: var(--kissa-card-bg);
   border: 1px solid var(--kissa-border);
-  border-radius: 12px;
+  border-radius: var(--kissa-radius);
   padding: 24px;
-  background: #ffffff;
   margin-bottom: 20px;
-  transition: all 0.25s ease;
+  box-shadow: var(--kissa-shadow-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.kissa-order-item:hover {
-  border-color: rgba(78, 52, 46, 0.3);
-  box-shadow: var(--kissa-shadow);
+.kissa-order-card:hover {
+  border-color: rgba(78, 52, 46, 0.25);
+  box-shadow: var(--kissa-shadow-md);
 }
 
-.kissa-order-header {
+.kissa-order-top-bar {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
+  gap: 16px;
   padding-bottom: 16px;
   border-bottom: 1px solid var(--kissa-border-subtle);
   margin-bottom: 16px;
-  gap: 12px;
 }
 
-.kissa-order-title {
+.kissa-order-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.kissa-order-id {
   font-family: "Inter", sans-serif;
   font-size: 1.05rem;
   font-weight: 600;
-  color: var(--kissa-brown);
-  margin: 0;
+  color: var(--kissa-primary);
 }
 
 .kissa-order-date {
-  font-size: 0.9rem;
-  color: var(--kissa-brown-light);
-  margin-left: 12px;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 0.95rem;
+  color: var(--kissa-primary-light);
 }
 
+.kissa-order-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Badges */
 .kissa-badge {
   font-family: "Inter", sans-serif;
   font-size: 0.72rem;
   font-weight: 600;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   padding: 4px 10px;
   border-radius: 9999px;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .kissa-badge-paid {
-  background: rgba(46, 125, 50, 0.1);
+  background: #e8f5e9;
   color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.2);
 }
 
 .kissa-badge-pending {
-  background: rgba(230, 81, 0, 0.1);
+  background: #fff3e0;
   color: #e65100;
+  border: 1px solid rgba(230, 81, 0, 0.2);
+}
+
+.kissa-badge-refunded {
+  background: #ffebee;
+  color: #c62828;
+  border: 1px solid rgba(198, 40, 40, 0.2);
 }
 
 .kissa-badge-fulfilled {
-  background: rgba(78, 52, 46, 0.1);
-  color: var(--kissa-brown);
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid rgba(46, 125, 50, 0.2);
 }
 
-.kissa-order-line-item {
+.kissa-badge-unfulfilled {
+  background: #eceff1;
+  color: #455a64;
+  border: 1px solid rgba(69, 90, 100, 0.2);
+}
+
+.kissa-badge-in-transit {
+  background: #e1f5fe;
+  color: #0277bd;
+  border: 1px solid rgba(2, 119, 189, 0.2);
+}
+
+.kissa-badge-default {
+  background: var(--kissa-accent);
+  color: #ffffff;
+}
+
+/* Order Line Item */
+.kissa-line-items-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kissa-line-item {
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
-.kissa-order-thumb {
-  width: 54px;
-  height: 54px;
+.kissa-line-item-img {
+  width: 56px;
+  height: 56px;
   object-fit: cover;
   border-radius: 8px;
-  background: var(--kissa-ivory);
+  background: var(--kissa-bg);
   border: 1px solid var(--kissa-border-subtle);
+  flex-shrink: 0;
 }
 
-.kissa-order-line-title {
+.kissa-line-item-fallback {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  background: var(--kissa-bg);
+  border: 1px solid var(--kissa-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Inter", sans-serif;
+  font-size: 0.7rem;
+  color: var(--kissa-primary-light);
+  flex-shrink: 0;
+}
+
+.kissa-line-item-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.kissa-line-item-title {
   font-family: "Instrument Serif", Georgia, serif;
   font-size: 1.15rem;
-  color: var(--kissa-brown);
-  margin: 0 0 4px;
+  color: var(--kissa-primary);
+  margin: 0 0 2px;
 }
 
-.kissa-order-line-qty {
+.kissa-line-item-meta {
   font-family: "Inter", sans-serif;
   font-size: 0.8rem;
-  color: var(--kissa-brown-light);
+  color: var(--kissa-primary-light);
   margin: 0;
 }
 
-.kissa-order-footer {
+/* Order Footer & Actions */
+.kissa-order-bottom-bar {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
-  margin-top: 16px;
-  padding-top: 12px;
+  gap: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--kissa-border-subtle);
 }
 
-.kissa-order-total {
-  font-family: "Inter", sans-serif;
-  font-size: 1.05rem;
-  font-weight: 600;
-  color: var(--kissa-brown);
+.kissa-order-total-block {
+  display: flex;
+  flex-direction: column;
 }
 
-/* Forms & Inputs */
-.kissa-form-group {
-  margin-bottom: 20px;
-}
-
-.kissa-label {
-  display: block;
+.kissa-order-total-label {
   font-family: "Inter", sans-serif;
-  font-size: 0.78rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
+  font-size: 0.75rem;
   text-transform: uppercase;
-  color: var(--kissa-brown);
-  margin-bottom: 8px;
+  color: var(--kissa-primary-light);
 }
 
-.kissa-input {
-  width: 100%;
-  padding: 12px 16px;
-  font-family: "Newsreader", Georgia, serif;
-  font-size: 1rem;
-  color: var(--kissa-brown);
-  background: #ffffff;
-  border: 1px solid var(--kissa-border);
-  border-radius: 8px;
-  transition: all 0.2s ease;
-  outline: none;
-  box-sizing: border-box;
+.kissa-order-total-val {
+  font-family: "Inter", sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--kissa-primary);
 }
 
-.kissa-input:focus {
-  border-color: var(--kissa-orange);
-  box-shadow: 0 0 0 3px rgba(204, 85, 0, 0.12);
+.kissa-order-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
+/* Buttons */
 .kissa-btn-primary {
   font-family: "Inter", sans-serif;
   font-size: 0.85rem;
   font-weight: 600;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   color: #ffffff;
-  background: var(--kissa-orange);
-  border: none;
-  padding: 14px 28px;
-  border-radius: 9999px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  text-decoration: none;
-}
-
-.kissa-btn-primary:hover {
-  background: #b54900;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(204, 85, 0, 0.25);
-}
-
-.kissa-btn-secondary {
-  font-family: "Inter", sans-serif;
-  font-size: 0.85rem;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  color: var(--kissa-brown);
-  background: transparent;
-  border: 1px solid var(--kissa-border);
+  background: var(--kissa-accent);
+  border: 1px solid var(--kissa-accent);
   padding: 12px 24px;
   border-radius: 9999px;
   cursor: pointer;
@@ -373,49 +571,363 @@
   text-decoration: none;
 }
 
-.kissa-btn-secondary:hover {
-  background: var(--kissa-brown);
-  color: var(--kissa-ivory);
-  border-color: var(--kissa-brown);
+.kissa-btn-primary:hover:not(:disabled) {
+  background: var(--kissa-accent-hover);
+  border-color: var(--kissa-accent-hover);
+  box-shadow: 0 4px 12px rgba(204, 85, 0, 0.25);
+  transform: translateY(-1px);
 }
 
-/* Empty States */
+.kissa-btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.kissa-btn-secondary {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--kissa-primary);
+  background: transparent;
+  border: 1px solid var(--kissa-border);
+  padding: 10px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.kissa-btn-secondary:hover:not(:disabled) {
+  background: var(--kissa-primary);
+  color: var(--kissa-bg);
+  border-color: var(--kissa-primary);
+}
+
+.kissa-btn-secondary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.kissa-btn-sm {
+  font-size: 0.78rem;
+  padding: 8px 16px;
+}
+
+.kissa-btn-danger-outline {
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #c62828;
+  background: transparent;
+  border: 1px solid rgba(198, 40, 40, 0.25);
+  padding: 6px 14px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.kissa-btn-danger-outline:hover {
+  background: #c62828;
+  color: #ffffff;
+  border-color: #c62828;
+}
+
+/* Forms & Fields */
+.kissa-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 600px) {
+  .kissa-form-grid-2 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.kissa-form-group {
+  margin-bottom: 18px;
+}
+
+.kissa-label {
+  display: block;
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--kissa-primary);
+  margin-bottom: 6px;
+}
+
+.kissa-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1rem;
+  color: var(--kissa-primary);
+  background: #ffffff;
+  border: 1px solid var(--kissa-border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.kissa-input:focus {
+  border-color: var(--kissa-accent);
+  box-shadow: 0 0 0 3px rgba(204, 85, 0, 0.12);
+}
+
+.kissa-input:disabled {
+  background: rgba(78, 52, 46, 0.04);
+  color: var(--kissa-primary-light);
+  cursor: not-allowed;
+}
+
+.kissa-input-help {
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  color: var(--kissa-primary-light);
+  margin-top: 6px;
+  display: block;
+}
+
+/* Empty State */
 .kissa-empty-state {
   text-align: center;
   padding: 48px 24px;
-  background: var(--kissa-cream-card);
+  background: var(--kissa-card-bg);
   border: 1px dashed var(--kissa-border);
-  border-radius: 16px;
+  border-radius: var(--kissa-radius-lg);
+}
+
+.kissa-empty-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 16px;
+  color: var(--kissa-primary-light);
+  opacity: 0.8;
 }
 
 .kissa-empty-title {
   font-family: "Instrument Serif", Georgia, serif;
   font-size: 1.8rem;
-  color: var(--kissa-brown);
-  margin: 12px 0 8px;
+  color: var(--kissa-primary);
+  margin: 0 0 8px;
 }
 
 .kissa-empty-desc {
+  font-family: "Newsreader", Georgia, serif;
   font-size: 1.05rem;
-  color: var(--kissa-brown-light);
-  max-width: 460px;
+  color: var(--kissa-primary-light);
+  max-width: 480px;
   margin: 0 auto 24px;
-  line-height: 1.6;
+  line-height: 1.5;
 }
 
-/* Login Gate Hero */
-.kissa-login-gate {
-  max-width: 520px;
-  margin: 120px auto 80px;
-  padding: 48px 36px;
-  background: var(--kissa-cream-card);
+/* Wishlist Grid */
+.kissa-wishlist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 24px;
+}
+
+.kissa-wishlist-card {
+  background: var(--kissa-card-bg);
   border: 1px solid var(--kissa-border);
-  border-radius: 20px;
+  border-radius: var(--kissa-radius);
+  overflow: hidden;
+  box-shadow: var(--kissa-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.kissa-wishlist-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--kissa-shadow-md);
+}
+
+.kissa-wishlist-img-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  background: var(--kissa-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+.kissa-wishlist-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.kissa-wishlist-card:hover .kissa-wishlist-img {
+  transform: scale(1.03);
+}
+
+.kissa-wishlist-content {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.kissa-wishlist-title {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 1.3rem;
+  color: var(--kissa-primary);
+  margin: 0 0 4px;
+}
+
+.kissa-wishlist-price {
+  font-family: "Inter", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--kissa-primary);
+  margin-bottom: 16px;
+}
+
+.kissa-wishlist-actions {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Addresses Grid */
+.kissa-address-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.kissa-address-card {
+  background: var(--kissa-card-bg);
+  border: 1px solid var(--kissa-border);
+  border-radius: var(--kissa-radius);
+  padding: 24px;
+  box-shadow: var(--kissa-shadow-sm);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.kissa-address-card.is-default {
+  border-color: var(--kissa-accent);
+}
+
+.kissa-address-name {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 1.35rem;
+  color: var(--kissa-primary);
+  margin: 0 0 10px;
+}
+
+.kissa-address-lines {
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--kissa-primary-light);
+  margin-bottom: 20px;
+  flex: 1;
+}
+
+.kissa-address-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-top: 16px;
+  border-top: 1px solid var(--kissa-border-subtle);
+}
+
+/* Notifications & Alerts */
+.kissa-alert-success {
+  background: #e8f5e9;
+  border: 1px solid #2e7d32;
+  color: #2e7d32;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kissa-alert-error {
+  background: #ffebee;
+  border: 1px solid #c62828;
+  color: #c62828;
+  padding: 14px 18px;
+  border-radius: 8px;
+  margin-bottom: 24px;
+  font-family: "Inter", sans-serif;
+  font-size: 0.9rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Modal Dialog for Order Details / Edit */
+.kissa-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(78, 52, 46, 0.45);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.kissa-modal-content {
+  background: #ffffff;
+  border-radius: var(--kissa-radius-lg);
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: var(--kissa-shadow-lg);
+  padding: 32px;
+  position: relative;
+}
+
+.kissa-modal-close {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: var(--kissa-primary-light);
+  line-height: 1;
+}
+
+/* Login Gate Hero (Signed-Out State) */
+.kissa-login-gate {
+  max-width: 500px;
+  margin: 60px auto 60px;
+  padding: 44px 36px;
+  background: var(--kissa-card-bg);
+  border: 1px solid var(--kissa-border);
+  border-radius: var(--kissa-radius-lg);
   text-align: center;
-  box-shadow: var(--kissa-shadow-hover);
+  box-shadow: var(--kissa-shadow-md);
 }
 
 .kissa-login-logo {
-  height: 38px;
+  height: 40px;
   margin-bottom: 24px;
 }

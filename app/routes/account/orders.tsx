@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router";
 import { gql } from "@shopify/hydrogen/customer-account";
 import type { Route } from "./+types/orders";
@@ -7,15 +8,15 @@ import { requireCustomerAccount } from "../../lib/customer-account.server";
 
 export const meta: Route.MetaFunction = () => {
   return [
-    { title: "Acquisitions & Orders — KISSA Atelier" },
-    { name: "description", content: "Review your botanical perfume orders and flacon acquisitions." },
+    { title: "My Orders | KISSA" },
+    { name: "description", content: "View your previous orders and check the status of your deliveries." },
   ];
 };
 
 const CUSTOMER_ORDERS_QUERY = gql(`
   query CustomerOrders {
     customer {
-      orders(first: 20, sortKey: PROCESSED_AT, reverse: true) {
+      orders(first: 50, sortKey: PROCESSED_AT, reverse: true) {
         nodes {
           id
           name
@@ -28,7 +29,30 @@ const CUSTOMER_ORDERS_QUERY = gql(`
             amount
             currencyCode
           }
-          lineItems(first: 10) {
+          subtotalPrice {
+            amount
+            currencyCode
+          }
+          totalTax {
+            amount
+            currencyCode
+          }
+          totalShippingPrice {
+            amount
+            currencyCode
+          }
+          shippingAddress {
+            formatted
+            firstName
+            lastName
+            address1
+            address2
+            city
+            province
+            zip
+            country
+          }
+          lineItems(first: 20) {
             nodes {
               title
               quantity
@@ -82,6 +106,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
 
 export default function AccountOrders({ loaderData }: Route.ComponentProps) {
   const orders = loaderData?.orders ?? [];
+  const [selectedOrder, setSelectedOrder] = useState<any | null>(null);
 
   const formatDate = (dateStr: string) => {
     try {
@@ -98,101 +123,110 @@ export default function AccountOrders({ loaderData }: Route.ComponentProps) {
   const formatPrice = (amount?: string, currency?: string) => {
     if (!amount) return "";
     const num = parseFloat(amount);
-    return `${currency || "INR"} ${num.toLocaleString()}`;
+    const sym = currency === "INR" ? "₹" : currency === "USD" ? "$" : currency ? `${currency} ` : "₹";
+    return `${sym}${num.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+
+  const getPaymentBadgeClass = (status?: string) => {
+    switch (status) {
+      case "PAID":
+        return "kissa-badge-paid";
+      case "REFUNDED":
+      case "VOIDED":
+        return "kissa-badge-refunded";
+      default:
+        return "kissa-badge-pending";
+    }
+  };
+
+  const getFulfillmentBadgeClass = (status?: string) => {
+    switch (status) {
+      case "FULFILLED":
+        return "kissa-badge-fulfilled";
+      case "IN_TRANSIT":
+        return "kissa-badge-in-transit";
+      default:
+        return "kissa-badge-unfulfilled";
+    }
+  };
+
+  const formatBadgeText = (text?: string) => {
+    if (!text) return "Pending";
+    return text.replace(/_/g, " ").toLowerCase().replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
   return (
     <div>
-      <div style={{ marginBottom: "32px" }}>
-        <h2 className="kissa-card-title" style={{ fontSize: "2rem", marginBottom: "8px" }}>
-          Your Flacon Archive
-        </h2>
-        <p className="kissa-account-subtitle">
-          Numbered editions and olfactory creations prepared for your sanctuary.
+      {/* SECTION HEADING */}
+      <div className="kissa-section-header">
+        <h2 className="kissa-section-title">My Orders</h2>
+        <p className="kissa-section-desc">
+          View your previous orders and check the status of your deliveries.
         </p>
       </div>
 
       {orders.length === 0 ? (
+        /* EMPTY STATE: NO ORDERS YET */
         <div className="kissa-empty-state">
           <svg
-            width="48"
-            height="48"
+            className="kissa-empty-icon"
             viewBox="0 0 24 24"
             fill="none"
-            stroke="var(--kissa-brown-light)"
+            stroke="currentColor"
             strokeWidth="1.5"
             strokeLinecap="round"
             strokeLinejoin="round"
-            style={{ margin: "0 auto 16px" }}
           >
             <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
             <path d="M3 6h18" />
             <path d="M16 10a4 4 0 0 1-8 0" />
           </svg>
-          <h3 className="kissa-empty-title">No acquisitions recorded yet</h3>
+          <h3 className="kissa-empty-title">No Orders Yet</h3>
           <p className="kissa-empty-desc">
-            Your private cellar currently holds no registered flacons. Explore our wild botanical herbarium to place your first reservation.
+            You haven&apos;t placed any orders yet. Explore our collection and find your favourite fragrance.
           </p>
           <Link to="/shop" className="kissa-btn-primary">
-            Explore Herbarium Collection
+            SHOP NOW
           </Link>
         </div>
       ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
           {orders.map((order: any) => (
-            <article key={order.id} className="kissa-order-item">
-              <div className="kissa-order-header">
-                <div>
-                  <span className="kissa-order-title" style={{ fontSize: "1.2rem" }}>
-                    Acquisition {order.name}
-                  </span>
+            <article key={order.id} className="kissa-order-card">
+              <div className="kissa-order-top-bar">
+                <div className="kissa-order-info">
+                  <span className="kissa-order-id">Order {order.name}</span>
                   <span className="kissa-order-date">
-                    Ordered on {formatDate(order.processedAt)}
+                    Placed on {formatDate(order.processedAt)}
                   </span>
                 </div>
-                <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-                  <span
-                    className={`kissa-badge ${
-                      order.financialStatus === "PAID"
-                        ? "kissa-badge-paid"
-                        : "kissa-badge-pending"
-                    }`}
-                  >
-                    Payment: {order.financialStatus}
+
+                <div className="kissa-order-badges">
+                  <span className={`kissa-badge ${getPaymentBadgeClass(order.financialStatus)}`}>
+                    Payment: {formatBadgeText(order.financialStatus)}
                   </span>
-                  <span className="kissa-badge kissa-badge-fulfilled">
-                    Status: {order.fulfillmentStatus}
+                  <span className={`kissa-badge ${getFulfillmentBadgeClass(order.fulfillmentStatus)}`}>
+                    Fulfillment: {formatBadgeText(order.fulfillmentStatus)}
                   </span>
                 </div>
               </div>
 
-              {/* Line Items */}
-              <div style={{ margin: "16px 0" }}>
+              {/* Products Line Items */}
+              <div className="kissa-line-items-list">
                 {order.lineItems?.nodes?.map((line: any, idx: number) => (
-                  <div key={idx} className="kissa-order-line-item">
+                  <div key={idx} className="kissa-line-item">
                     {line.image?.url ? (
                       <img
                         src={line.image.url}
                         alt={line.image.altText || line.title}
-                        className="kissa-order-thumb"
+                        className="kissa-line-item-img"
                       />
                     ) : (
-                      <div
-                        className="kissa-order-thumb"
-                        style={{
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          fontSize: "0.7rem",
-                          color: "var(--kissa-brown-light)",
-                        }}
-                      >
-                        KISSA
-                      </div>
+                      <div className="kissa-line-item-fallback">KISSA</div>
                     )}
-                    <div style={{ flex: 1 }}>
-                      <h4 className="kissa-order-line-title">{line.title}</h4>
-                      <p className="kissa-order-line-qty">
+                    <div className="kissa-line-item-details">
+                      <h4 className="kissa-line-item-title">{line.title}</h4>
+                      <p className="kissa-line-item-meta">
                         Quantity: {line.quantity}
                         {line.price?.amount && (
                           <span> · {formatPrice(line.price.amount, line.price.currencyCode)} each</span>
@@ -203,46 +237,218 @@ export default function AccountOrders({ loaderData }: Route.ComponentProps) {
                 ))}
               </div>
 
-              {/* Order Footer & Tracking Link */}
-              <div className="kissa-order-footer">
-                <div>
-                  {order.statusPageUrl && (
+              {/* Order Footer & Action Buttons */}
+              <div className="kissa-order-bottom-bar">
+                <div className="kissa-order-total-block">
+                  <span className="kissa-order-total-label">Total Amount</span>
+                  <span className="kissa-order-total-val">
+                    {formatPrice(order.totalPrice?.amount, order.totalPrice?.currencyCode)}
+                  </span>
+                </div>
+
+                <div className="kissa-order-actions">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedOrder(order)}
+                    className="kissa-btn-secondary kissa-btn-sm"
+                  >
+                    View Details
+                  </button>
+
+                  {order.statusPageUrl ? (
                     <a
                       href={order.statusPageUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{
-                        fontFamily: "Inter, sans-serif",
-                        fontSize: "0.85rem",
-                        color: "var(--kissa-orange)",
-                        textDecoration: "none",
-                        fontWeight: 500,
-                        display: "inline-flex",
-                        alignItems: "center",
-                        gap: "6px",
-                      }}
+                      className="kissa-btn-primary kissa-btn-sm"
                     >
-                      <span>Track Dispatch on Shopify</span>
-                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <span>Track Order</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
                         <polyline points="15 3 21 3 21 9" />
                         <line x1="10" y1="14" x2="21" y2="3" />
                       </svg>
                     </a>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setSelectedOrder(order)}
+                      className="kissa-btn-primary kissa-btn-sm"
+                    >
+                      Track Order
+                    </button>
                   )}
-                </div>
-
-                <div style={{ textAlign: "right" }}>
-                  <span style={{ fontSize: "0.85rem", color: "var(--kissa-brown-light)", display: "block" }}>
-                    Total Invoiced
-                  </span>
-                  <span className="kissa-order-total" style={{ fontSize: "1.25rem" }}>
-                    {formatPrice(order.totalPrice?.amount, order.totalPrice?.currencyCode)}
-                  </span>
                 </div>
               </div>
             </article>
           ))}
+        </div>
+      )}
+
+      {/* ORDER DETAILS MODAL */}
+      {selectedOrder && (
+        <div
+          className="kissa-modal-backdrop"
+          onClick={() => setSelectedOrder(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-order-title"
+        >
+          <div
+            className="kissa-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="kissa-modal-close"
+              onClick={() => setSelectedOrder(null)}
+              aria-label="Close order details"
+            >
+              ×
+            </button>
+
+            <div style={{ marginBottom: "20px" }}>
+              <span className="kissa-stat-label">Order Details</span>
+              <h3 id="modal-order-title" className="kissa-section-title" style={{ fontSize: "1.8rem" }}>
+                Order {selectedOrder.name}
+              </h3>
+              <p className="kissa-order-date">
+                Placed on {formatDate(selectedOrder.processedAt)}
+              </p>
+            </div>
+
+            <div style={{ display: "flex", gap: "8px", marginBottom: "24px" }}>
+              <span className={`kissa-badge ${getPaymentBadgeClass(selectedOrder.financialStatus)}`}>
+                Payment: {formatBadgeText(selectedOrder.financialStatus)}
+              </span>
+              <span className={`kissa-badge ${getFulfillmentBadgeClass(selectedOrder.fulfillmentStatus)}`}>
+                Fulfillment: {formatBadgeText(selectedOrder.fulfillmentStatus)}
+              </span>
+            </div>
+
+            {/* Products List in Modal */}
+            <div style={{ marginBottom: "24px", borderTop: "1px solid var(--kissa-border-subtle)", paddingTop: "16px" }}>
+              <h4 className="kissa-card-title" style={{ fontSize: "1.2rem", marginBottom: "12px" }}>
+                Items Ordered
+              </h4>
+              <div className="kissa-line-items-list">
+                {selectedOrder.lineItems?.nodes?.map((line: any, idx: number) => (
+                  <div key={idx} className="kissa-line-item">
+                    {line.image?.url ? (
+                      <img
+                        src={line.image.url}
+                        alt={line.image.altText || line.title}
+                        className="kissa-line-item-img"
+                      />
+                    ) : (
+                      <div className="kissa-line-item-fallback">KISSA</div>
+                    )}
+                    <div className="kissa-line-item-details">
+                      <h5 className="kissa-line-item-title">{line.title}</h5>
+                      <p className="kissa-line-item-meta">
+                        Quantity: {line.quantity}
+                        {line.price?.amount && (
+                          <span> · {formatPrice(line.price.amount, line.price.currencyCode)} each</span>
+                        )}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Summary */}
+            <div
+              style={{
+                background: "var(--kissa-card-bg-subtle)",
+                borderRadius: "8px",
+                padding: "16px",
+                marginBottom: "24px",
+                fontSize: "0.95rem",
+              }}
+            >
+              {selectedOrder.subtotalPrice?.amount && (
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ color: "var(--kissa-primary-light)" }}>Subtotal</span>
+                  <span>{formatPrice(selectedOrder.subtotalPrice.amount, selectedOrder.subtotalPrice.currencyCode)}</span>
+                </div>
+              )}
+
+              {selectedOrder.totalShippingPrice?.amount && (
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ color: "var(--kissa-primary-light)" }}>Shipping</span>
+                  <span>{formatPrice(selectedOrder.totalShippingPrice.amount, selectedOrder.totalShippingPrice.currencyCode)}</span>
+                </div>
+              )}
+
+              {selectedOrder.totalTax?.amount && (
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "8px" }}>
+                  <span style={{ color: "var(--kissa-primary-light)" }}>Tax</span>
+                  <span>{formatPrice(selectedOrder.totalTax.amount, selectedOrder.totalTax.currencyCode)}</span>
+                </div>
+              )}
+
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  paddingTop: "8px",
+                  borderTop: "1px solid var(--kissa-border-subtle)",
+                  fontWeight: 600,
+                  fontSize: "1.05rem",
+                }}
+              >
+                <span>Total</span>
+                <span>{formatPrice(selectedOrder.totalPrice?.amount, selectedOrder.totalPrice?.currencyCode)}</span>
+              </div>
+            </div>
+
+            {/* Shipping Address in Modal */}
+            {selectedOrder.shippingAddress && (
+              <div style={{ marginBottom: "24px" }}>
+                <h4 className="kissa-card-title" style={{ fontSize: "1.2rem", marginBottom: "8px" }}>
+                  Delivery Address
+                </h4>
+                <div style={{ fontSize: "0.95rem", lineHeight: "1.6", color: "var(--kissa-primary-light)" }}>
+                  <p style={{ margin: 0, fontWeight: 600, color: "var(--kissa-primary)" }}>
+                    {selectedOrder.shippingAddress.firstName} {selectedOrder.shippingAddress.lastName}
+                  </p>
+                  <p style={{ margin: 0 }}>{selectedOrder.shippingAddress.address1}</p>
+                  {selectedOrder.shippingAddress.address2 && <p style={{ margin: 0 }}>{selectedOrder.shippingAddress.address2}</p>}
+                  <p style={{ margin: 0 }}>
+                    {selectedOrder.shippingAddress.city}, {selectedOrder.shippingAddress.province} {selectedOrder.shippingAddress.zip}
+                  </p>
+                  <p style={{ margin: 0 }}>{selectedOrder.shippingAddress.country}</p>
+                </div>
+              </div>
+            )}
+
+            {/* Action in Modal */}
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
+              {selectedOrder.statusPageUrl && (
+                <a
+                  href={selectedOrder.statusPageUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="kissa-btn-primary"
+                >
+                  <span>Track on Shopify</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={() => setSelectedOrder(null)}
+                className="kissa-btn-secondary"
+              >
+                Close
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

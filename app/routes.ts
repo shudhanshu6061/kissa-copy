@@ -23,6 +23,7 @@ export default [
     route("account/orders", "routes/account/orders.tsx"),
     route("account/profile", "routes/account/profile.tsx"),
     route("account/addresses", "routes/account/addresses.tsx"),
+    route("account/wishlist", "routes/account/wishlist.tsx"),
   ]),
 
   // Final catch-all splat route: ensures root middleware runs for Shopify handler paths

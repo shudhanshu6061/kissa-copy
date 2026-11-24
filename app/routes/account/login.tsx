@@ -1,6 +1,7 @@
 import { redirect } from "react-router";
 import type { Route } from "./+types/login";
 import { getCustomerAuthState } from "../../lib/customer-account.server";
+import { envContext } from "../../lib/server-context";
 import { MainLayout } from "../../layouts/MainLayout";
 import "../../styles/account.css";
 
@@ -15,8 +16,9 @@ export const meta: Route.MetaFunction = () => {
   ];
 };
 
-export async function loader({ request }: Route.LoaderArgs) {
-  const { isLoggedIn } = await getCustomerAuthState(request);
+export async function loader({ request, context }: Route.LoaderArgs) {
+  const env = context.get(envContext);
+  const { isLoggedIn } = await getCustomerAuthState(request, env);
   const url = new URL(request.url);
   const returnTo = url.searchParams.get("return_to") || "/account";
 

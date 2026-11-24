@@ -7,9 +7,9 @@ import type { WritableCustomerSessionManager } from "@shopify/hydrogen/customer-
  */
 export async function createAppSessionManager(
   request: Request,
-  env: Env,
+  env?: Partial<Env>,
 ): Promise<WritableCustomerSessionManager> {
-  const sessionSecret = env.SESSION_SECRET || "fallback_dev_secret_change_me";
+  const sessionSecret = env?.SESSION_SECRET || "fallback_dev_secret_change_me";
 
   const sessionStorage = createCookieSessionStorage({
     cookie: {
@@ -27,16 +27,6 @@ export async function createAppSessionManager(
 
   return {
     async getSessionOrigin(): Promise<string> {
-      if (env.PUBLIC_CUSTOMER_ACCOUNT_API_URL) {
-        // Derive origin from the configured URL
-        try {
-          const url = new URL(env.PUBLIC_CUSTOMER_ACCOUNT_API_URL);
-          return url.origin;
-        } catch {
-          // fall through
-        }
-      }
-
       let host =
         request.headers.get("x-forwarded-host")?.split(",")[0]?.trim() ||
         request.headers.get("host");

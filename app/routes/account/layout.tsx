@@ -2,7 +2,12 @@ import { NavLink, Outlet } from "react-router";
 import { gql } from "@shopify/hydrogen/customer-account";
 import type { Route } from "./+types/layout";
 import { storefrontContext } from "../../lib/context";
-import { requireCustomerAccount } from "../../lib/customer-account.server";
+import { envContext } from "../../lib/server-context";
+import {
+  createRequestCustomerSession,
+  createRequestCustomerAccountClient,
+} from "../../lib/customer-account.server";
+import { createAppSessionManager } from "../../lib/session.server";
 import { MainLayout } from "../../layouts/MainLayout";
 import "../../styles/account.css";
 
@@ -25,26 +30,153 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   if (!storefront) {
     throw new Response("Storefront context not initialized", { status: 500 });
   }
+  const env = context.get(envContext);
 
-  const { customerAccount, accessToken } = await requireCustomerAccount(
-    request,
+  const { customerSession } = createRequestCustomerSession(env);
+  const sessionManager = await createAppSessionManager(request, env);
+  const loggedIn = await customerSession.isLoggedIn(
+    sessionManager,
     storefront.requestContext
   );
 
-  const { data, errors } = await customerAccount.graphql(CUSTOMER_LAYOUT_QUERY, {
-    accessToken,
-  });
+  const url = new URL(request.url);
+  const returnTo = url.pathname + url.search;
 
-  if (errors && errors.length > 0) {
-    console.warn("Customer layout GraphQL errors:", errors);
+  if (!loggedIn) {
+    return {
+      isLoggedIn: false,
+      customer: null,
+      returnTo,
+    };
+  }
+
+  const accessToken = await customerSession.getAccessToken(
+    sessionManager,
+    storefront.requestContext
+  );
+
+  if (!accessToken) {
+    if (url.searchParams.get("refreshed") === "1") {
+      return {
+        isLoggedIn: false,
+        customer: null,
+        returnTo,
+      };
+    }
+
+    const refreshTarget = `/account/refresh?return_to=${encodeURIComponent(
+      `${url.pathname}?refreshed=1`
+    )}`;
+    throw new Response(null, {
+      status: 302,
+      headers: { Location: refreshTarget },
+    });
+  }
+
+  let customer = null;
+  try {
+    const customerAccount = createRequestCustomerAccountClient(
+      storefront.requestContext,
+      env
+    );
+    const { data, errors } = await customerAccount.graphql(CUSTOMER_LAYOUT_QUERY, {
+      accessToken,
+    });
+
+    if (errors && errors.length > 0) {
+      console.warn("Customer layout GraphQL errors:", errors);
+    }
+    customer = data?.customer ?? null;
+  } catch (err) {
+    console.error("Failed to query customer layout:", err);
   }
 
   return {
-    customer: data?.customer ?? null,
+    isLoggedIn: true,
+    customer,
+    returnTo,
   };
 }
 
 export default function AccountLayout({ loaderData }: Route.ComponentProps) {
+  if (!loaderData?.isLoggedIn) {
+    const returnTo = loaderData?.returnTo || "/account";
+    const authUrl = `/account/login?return_to=${encodeURIComponent(returnTo)}`;
+
+    return (
+      <MainLayout showAnnouncement={false}>
+        <div className="kissa-login-gate">
+          <div style={{ marginBottom: "20px" }}>
+            <img
+              src="/kissa-logo.png"
+              alt="KISSA"
+              className="kissa-login-logo"
+            />
+          </div>
+
+          <span className="kissa-account-pretitle">
+            Private Sanctuary &amp; Concierge
+          </span>
+
+          <h1 className="kissa-account-title" style={{ fontSize: "2.2rem" }}>
+            Atelier Member Sign-In
+          </h1>
+
+          <p
+            className="kissa-account-subtitle"
+            style={{ marginBottom: "32px", fontSize: "1.05rem", lineHeight: "1.6" }}
+          >
+            Enter the sanctuary of wild botanical extracts and living watercolors.
+            Authenticate seamlessly with Shopify&apos;s official passwordless customer portal.
+          </p>
+
+          <div style={{ marginBottom: "24px" }}>
+            <a
+              href={authUrl}
+              className="kissa-btn-primary"
+              style={{
+                width: "100%",
+                padding: "16px 28px",
+                display: "inline-block",
+                textAlign: "center",
+                textDecoration: "none",
+                boxSizing: "border-box",
+              }}
+            >
+              Authenticate with Shopify
+            </a>
+          </div>
+
+          <div style={{ borderTop: "1px solid var(--kissa-border)", paddingTop: "20px" }}>
+            <p
+              style={{
+                fontSize: "0.85rem",
+                color: "var(--kissa-brown-light)",
+                fontFamily: "Inter, sans-serif",
+                margin: "0 0 16px",
+              }}
+            >
+              No password required. A secure one-time code will be dispatched to your email address or Shop account.
+            </p>
+
+            <a
+              href="/shop"
+              className="kissa-btn-secondary"
+              style={{
+                fontSize: "0.8rem",
+                padding: "10px 20px",
+                display: "inline-block",
+                textDecoration: "none",
+              }}
+            >
+              Return to Herbarium Shop
+            </a>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
+
   const customer = loaderData?.customer;
   const displayName =
     customer?.firstName ||

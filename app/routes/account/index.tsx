@@ -2,7 +2,12 @@ import { Link } from "react-router";
 import { gql } from "@shopify/hydrogen/customer-account";
 import type { Route } from "./+types/index";
 import { storefrontContext } from "../../lib/context";
-import { requireCustomerAccount } from "../../lib/customer-account.server";
+import { envContext } from "../../lib/server-context";
+import {
+  createRequestCustomerSession,
+  createRequestCustomerAccountClient,
+} from "../../lib/customer-account.server";
+import { createAppSessionManager } from "../../lib/session.server";
 
 export const meta: Route.MetaFunction = () => {
   return [
@@ -69,22 +74,52 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   if (!storefront) {
     throw new Response("Storefront context not initialized", { status: 500 });
   }
+  const env = context.get(envContext);
 
-  const { customerAccount, accessToken } = await requireCustomerAccount(
-    request,
+  const { customerSession } = createRequestCustomerSession(env);
+  const sessionManager = await createAppSessionManager(request, env);
+  const loggedIn = await customerSession.isLoggedIn(
+    sessionManager,
     storefront.requestContext
   );
 
-  const { data, errors } = await customerAccount.graphql(CUSTOMER_OVERVIEW_QUERY, {
-    accessToken,
-  });
+  if (!loggedIn) {
+    return {
+      customer: null,
+    };
+  }
 
-  if (errors && errors.length > 0) {
-    console.warn("Customer overview GraphQL errors:", errors);
+  const accessToken = await customerSession.getAccessToken(
+    sessionManager,
+    storefront.requestContext
+  );
+
+  if (!accessToken) {
+    return {
+      customer: null,
+    };
+  }
+
+  let customer = null;
+  try {
+    const customerAccount = createRequestCustomerAccountClient(
+      storefront.requestContext,
+      env
+    );
+    const { data, errors } = await customerAccount.graphql(CUSTOMER_OVERVIEW_QUERY, {
+      accessToken,
+    });
+
+    if (errors && errors.length > 0) {
+      console.warn("Customer overview GraphQL errors:", errors);
+    }
+    customer = data?.customer ?? null;
+  } catch (err) {
+    console.error("Failed to query customer overview:", err);
   }
 
   return {
-    customer: data?.customer ?? null,
+    customer,
   };
 }
 

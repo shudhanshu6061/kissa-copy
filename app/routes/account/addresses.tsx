@@ -3,6 +3,7 @@ import { Form, useActionData, useNavigation } from "react-router";
 import { gql } from "@shopify/hydrogen/customer-account";
 import type { Route } from "./+types/addresses";
 import { storefrontContext } from "../../lib/context";
+import { envContext } from "../../lib/server-context";
 import { requireCustomerAccount } from "../../lib/customer-account.server";
 
 export const meta: Route.MetaFunction = () => {
@@ -86,23 +87,33 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   if (!storefront) {
     throw new Response("Storefront context not initialized", { status: 500 });
   }
+  const env = context.get(envContext);
 
   const { customerAccount, accessToken } = await requireCustomerAccount(
     request,
-    storefront.requestContext
+    storefront.requestContext,
+    env
   );
 
-  const { data, errors } = await customerAccount.graphql(CUSTOMER_ADDRESSES_QUERY, {
-    accessToken,
-  });
+  let defaultAddressId = null;
+  let addresses: any[] = [];
+  try {
+    const { data, errors } = await customerAccount.graphql(CUSTOMER_ADDRESSES_QUERY, {
+      accessToken,
+    });
 
-  if (errors && errors.length > 0) {
-    console.warn("Customer addresses GraphQL errors:", errors);
+    if (errors && errors.length > 0) {
+      console.warn("Customer addresses GraphQL errors:", errors);
+    }
+    defaultAddressId = data?.customer?.defaultAddress?.id ?? null;
+    addresses = data?.customer?.addresses?.nodes ?? [];
+  } catch (err) {
+    console.error("Failed to query customer addresses:", err);
   }
 
   return {
-    defaultAddressId: data?.customer?.defaultAddress?.id ?? null,
-    addresses: data?.customer?.addresses?.nodes ?? [],
+    defaultAddressId,
+    addresses,
   };
 }
 
@@ -111,10 +122,12 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!storefront) {
     throw new Response("Storefront context not initialized", { status: 500 });
   }
+  const env = context.get(envContext);
 
   const { customerAccount, accessToken } = await requireCustomerAccount(
     request,
-    storefront.requestContext
+    storefront.requestContext,
+    env
   );
 
   const formData = await request.formData();

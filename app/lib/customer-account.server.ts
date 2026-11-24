@@ -14,10 +14,10 @@ import { createAppSessionManager } from "./session.server";
  * Creates a CustomerSession for the given env bindings.
  * Called per-request so it uses the correct env values from Oxygen.
  */
-export function createRequestCustomerSession(env: Env) {
-  const shopId = env.SHOP_ID || "102184911161";
+export function createRequestCustomerSession(env?: Partial<Env>) {
+  const shopId = env?.SHOP_ID || "102184911161";
   const customerAccountApiClientId =
-    env.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID || "";
+    env?.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID || "16c98fcb-0b9b-4f14-b7fa-6170b59a71f0";
 
   function normalizeCustomerAccountApiUrl(
     rawUrl?: string,
@@ -36,7 +36,7 @@ export function createRequestCustomerSession(env: Env) {
   }
 
   const customerAccountApiUrl = normalizeCustomerAccountApiUrl(
-    env.PUBLIC_CUSTOMER_ACCOUNT_API_URL,
+    env?.PUBLIC_CUSTOMER_ACCOUNT_API_URL,
     shopId,
   );
 
@@ -54,9 +54,9 @@ export function createRequestCustomerSession(env: Env) {
  */
 export function createRequestCustomerAccountClient(
   requestContext: ShopifyRequestContext,
-  env: Env,
+  env?: Partial<Env>,
 ): CustomerAccountClient {
-  const shopId = env.SHOP_ID || "102184911161";
+  const shopId = env?.SHOP_ID || "102184911161";
   return createCustomerAccountClient({
     shopId,
     requestContext,
@@ -71,7 +71,7 @@ export function createRequestCustomerAccountClient(
 export async function requireCustomerAccount(
   request: Request,
   requestContext: ShopifyRequestContext,
-  env: Env,
+  env?: Env,
 ) {
   const { customerSession } = createRequestCustomerSession(env);
   const sessionManager = await createAppSessionManager(request, env);
@@ -121,7 +121,7 @@ export async function requireCustomerAccount(
  */
 export async function getCustomerAuthState(
   request: Request,
-  env: Env,
+  env?: Env,
   requestContext?: ShopifyRequestContext,
 ) {
   try {
@@ -137,12 +137,14 @@ export async function getCustomerAuthState(
     return {
       isLoggedIn,
       sessionManager,
+      customerSession,
     };
   } catch (err) {
     console.error("Failed to read customer auth state:", err);
     return {
       isLoggedIn: false,
       sessionManager: null,
+      customerSession: null,
     };
   }
 }

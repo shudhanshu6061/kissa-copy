@@ -2,6 +2,7 @@ import { Form, useActionData, useNavigation } from "react-router";
 import { gql } from "@shopify/hydrogen/customer-account";
 import type { Route } from "./+types/profile";
 import { storefrontContext } from "../../lib/context";
+import { envContext } from "../../lib/server-context";
 import { requireCustomerAccount } from "../../lib/customer-account.server";
 
 export const meta: Route.MetaFunction = () => {
@@ -50,22 +51,30 @@ export async function loader({ request, context }: Route.LoaderArgs) {
   if (!storefront) {
     throw new Response("Storefront context not initialized", { status: 500 });
   }
+  const env = context.get(envContext);
 
   const { customerAccount, accessToken } = await requireCustomerAccount(
     request,
-    storefront.requestContext
+    storefront.requestContext,
+    env
   );
 
-  const { data, errors } = await customerAccount.graphql(CUSTOMER_PROFILE_QUERY, {
-    accessToken,
-  });
+  let customer = null;
+  try {
+    const { data, errors } = await customerAccount.graphql(CUSTOMER_PROFILE_QUERY, {
+      accessToken,
+    });
 
-  if (errors && errors.length > 0) {
-    console.warn("Customer profile GraphQL errors:", errors);
+    if (errors && errors.length > 0) {
+      console.warn("Customer profile GraphQL errors:", errors);
+    }
+    customer = data?.customer ?? null;
+  } catch (err) {
+    console.error("Failed to query customer profile:", err);
   }
 
   return {
-    customer: data?.customer ?? null,
+    customer,
   };
 }
 
@@ -74,10 +83,12 @@ export async function action({ request, context }: Route.ActionArgs) {
   if (!storefront) {
     throw new Response("Storefront context not initialized", { status: 500 });
   }
+  const env = context.get(envContext);
 
   const { customerAccount, accessToken } = await requireCustomerAccount(
     request,
-    storefront.requestContext
+    storefront.requestContext,
+    env
   );
 
   const formData = await request.formData();

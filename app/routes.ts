@@ -17,12 +17,16 @@ export default [
   route("faq", "routes/faqs.tsx", { id: "faq" }),
   route("collections/all", "routes/collections-all.tsx"),
 
-  // Customer Account Authentication & Dashboard Routes
-  route("account/login", "routes/account/login.tsx"),
+  // Customer Account Dashboard Routes (under /account)
   layout("routes/account/layout.tsx", [
     route("account", "routes/account/index.tsx"),
     route("account/orders", "routes/account/orders.tsx"),
     route("account/profile", "routes/account/profile.tsx"),
     route("account/addresses", "routes/account/addresses.tsx"),
   ]),
+
+  // Final catch-all splat route: ensures root middleware runs for Shopify handler paths
+  // (/account/authorize, /account/login, /account/refresh, /account/logout, /.well-known/ucp, /api/cart)
+  // and enables post-routing handleShopifyRedirects on 404.
+  route("*", "routes/catchall.tsx"),
 ] satisfies RouteConfig;

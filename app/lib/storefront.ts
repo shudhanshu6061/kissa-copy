@@ -1,10 +1,18 @@
 import {
     createShopifyRequestContext,
     createStorefrontClient,
+    type CacheInstance,
 } from "@shopify/hydrogen";
 
-export function createRequestStorefrontClient(request: Request, env: Env) {
+export function createRequestStorefrontClient(
+    request: Request,
+    env: Env,
+    cache?: CacheInstance,
+    waitUntil?: ExecutionContext["waitUntil"],
+) {
     const buyerIp =
+        request.headers.get("oxygen-buyer-ip") ||
+        request.headers.get("cf-connecting-ip") ||
         request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
         request.headers.get("x-real-ip") ||
         "127.0.0.1";
@@ -31,6 +39,8 @@ export function createRequestStorefrontClient(request: Request, env: Env) {
                 storeDomain,
                 privateStorefrontToken: privateToken,
                 storefrontId,
+                cache,
+                waitUntil,
             },
         });
     }
@@ -42,6 +52,8 @@ export function createRequestStorefrontClient(request: Request, env: Env) {
             storeDomain,
             publicStorefrontToken: publicToken,
             storefrontId,
+            cache,
+            waitUntil,
         },
     });
 }

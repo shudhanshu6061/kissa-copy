@@ -11,6 +11,11 @@ export async function createAppSessionManager(
 ): Promise<WritableCustomerSessionManager> {
   const sessionSecret = env?.SESSION_SECRET || "fallback_dev_secret_change_me";
 
+  const isSecure =
+    new URL(request.url).protocol === "https:" ||
+    request.headers.get("x-forwarded-proto") === "https" ||
+    process.env.NODE_ENV === "production";
+
   const sessionStorage = createCookieSessionStorage({
     cookie: {
       name: "__kissa_session",
@@ -18,7 +23,7 @@ export async function createAppSessionManager(
       path: "/",
       sameSite: "lax",
       secrets: [sessionSecret],
-      secure: true,
+      secure: isSecure,
     },
   });
 

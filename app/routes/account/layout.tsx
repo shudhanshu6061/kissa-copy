@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet, redirect } from "react-router";
 import { gql } from "@shopify/hydrogen/customer-account";
 import type { Route } from "./+types/layout";
 import { storefrontContext } from "../../lib/context";
@@ -67,10 +67,7 @@ export async function loader({ request, context }: Route.LoaderArgs) {
     const refreshTarget = `/account/refresh?return_to=${encodeURIComponent(
       `${url.pathname}?refreshed=1`
     )}`;
-    throw new Response(null, {
-      status: 302,
-      headers: { Location: refreshTarget },
-    });
+    throw redirect(refreshTarget);
   }
 
   let customer = null;

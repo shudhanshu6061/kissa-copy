@@ -19,31 +19,11 @@ export function createRequestCustomerSession(env?: Partial<Env>) {
   const customerAccountApiClientId =
     env?.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID || "16c98fcb-0b9b-4f14-b7fa-6170b59a71f0";
 
-  function normalizeCustomerAccountApiUrl(
-    rawUrl?: string,
-    id?: string,
-  ): string | undefined {
-    if (!rawUrl && !id) return undefined;
-    if (!rawUrl && id) return `https://shopify.com/authentication/${id}`;
-    if (rawUrl) {
-      const trimmed = rawUrl.trim().replace(/\/$/, "");
-      if (!trimmed.includes("/authentication/")) {
-        return trimmed.replace("shopify.com/", "shopify.com/authentication/");
-      }
-      return trimmed;
-    }
-    return undefined;
-  }
-
-  const customerAccountApiUrl = normalizeCustomerAccountApiUrl(
-    env?.PUBLIC_CUSTOMER_ACCOUNT_API_URL,
-    shopId,
-  );
-
+  // Omitting customerAccountApiUrl lets Hydrogen automatically derive
+  // the canonical https://shopify.com/authentication/{shopId} URL.
   const customerSession = createCustomerSession({
     shopId,
     customerAccountApiClientId,
-    customerAccountApiUrl,
   });
 
   return { customerSession, shopId };

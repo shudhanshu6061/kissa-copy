@@ -10,7 +10,7 @@ import {
 import type { Route } from "./+types/root";
 
 import { storefrontContext, customerAccountContext } from "./lib/context";
-import { envContext } from "./lib/server-context";
+import { envContext, cacheContext, waitUntilContext } from "./lib/server-context";
 import { handleRequest } from "./lib/shopify";
 import { CartProvider } from "./context/CartContext";
 
@@ -20,15 +20,23 @@ import "./styles/global.css";
 export const middleware: Route.MiddlewareFunction[] = [
     ({ request, context }, next) => {
         const env = context.get(envContext);
-        return handleRequest(request, env, async (_request, storefrontClient, customerContext) => {
-            if (storefrontClient) {
-                context.set(storefrontContext, storefrontClient);
-            }
-            if (customerContext) {
-                context.set(customerAccountContext, customerContext);
-            }
-            return next();
-        });
+        const cache = context.get(cacheContext);
+        const waitUntil = context.get(waitUntilContext);
+        return handleRequest(
+            request,
+            env,
+            async (_request, storefrontClient, customerContext) => {
+                if (storefrontClient) {
+                    context.set(storefrontContext, storefrontClient);
+                }
+                if (customerContext) {
+                    context.set(customerAccountContext, customerContext);
+                }
+                return next();
+            },
+            cache,
+            waitUntil
+        );
     },
 ];
 

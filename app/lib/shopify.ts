@@ -2,6 +2,7 @@ import {
   handleShopifyRedirects,
   handleShopifyRoutes,
   createCartServerHandlers,
+  type CacheInstance,
   type StorefrontClient,
 } from "@shopify/hydrogen";
 import {
@@ -29,11 +30,16 @@ export async function handleRequest(
     request: Request,
     storefrontClient: StorefrontClient | null,
     customerContext: CustomerContextValue | null
-  ) => Promise<Response>
+  ) => Promise<Response>,
+  cache?: CacheInstance,
+  waitUntil?: ExecutionContext["waitUntil"]
 ): Promise<Response> {
   const { customerSession } = createRequestCustomerSession(env);
   const customerAccountHandlers = createCustomerAccountServerHandlers({
     customerSession,
+    defaultPostLoginRedirectPathname: "/account",
+    loginFailedRedirectPath: "/account?login=failed",
+    postLogoutRedirectUri: "/",
   });
 
   let storefrontClient: StorefrontClient | null = null;
@@ -43,7 +49,12 @@ export async function handleRequest(
   let isLoggedIn = false;
 
   try {
-    storefrontClient = createRequestStorefrontClient(request, env);
+    storefrontClient = createRequestStorefrontClient(
+      request,
+      env,
+      cache,
+      waitUntil
+    );
     requestContext = storefrontClient.requestContext;
     sessionManager = await createAppSessionManager(request, env);
   } catch (err) {
@@ -51,25 +62,19 @@ export async function handleRequest(
   }
 
   if (storefrontClient && requestContext && sessionManager) {
-    try {
-      const shopifyResponse = handleShopifyRoutes({
-        request,
-        requestContext,
-        storefrontClient,
-        sessionManager,
-        routeTemplates,
-        handlers: [customerAccountHandlers, cartHandlers],
-      });
+    // 1. handleShopifyRoutes intercepts Hydrogen routes before framework routing:
+    // /account/login, /account/authorize, /account/refresh, /account/logout, /.well-known/ucp, /api/cart
+    const shopifyResponse = handleShopifyRoutes({
+      request,
+      requestContext,
+      storefrontClient,
+      sessionManager,
+      routeTemplates,
+      handlers: [customerAccountHandlers, cartHandlers],
+    });
 
-      if (shopifyResponse) {
-        return await shopifyResponse;
-      }
-    } catch (routeErr) {
-      console.error("Error in handleShopifyRoutes:", routeErr);
-      const url = new URL(request.url);
-      if (url.pathname === "/account/authorize" || url.pathname === "/account/login") {
-        return Response.redirect(new URL("/account", request.url).toString(), 302);
-      }
+    if (shopifyResponse) {
+      return await shopifyResponse;
     }
 
     try {
@@ -86,12 +91,6 @@ export async function handleRequest(
     }
   }
 
-  // Fallback for handler-owned account URLs so they never 404
-  const reqUrl = new URL(request.url);
-  if (reqUrl.pathname === "/account/authorize" || reqUrl.pathname === "/account/login") {
-    return Response.redirect(new URL("/account", request.url).toString(), 302);
-  }
-
   const customerContextValue: CustomerContextValue | null =
     customerAccount && sessionManager
       ? {
@@ -102,13 +101,14 @@ export async function handleRequest(
         }
       : null;
 
+  // 2. Delegate to React Router framework routing
   let response = await next(
     request,
     storefrontClient as StorefrontClient,
     customerContextValue,
   );
 
-  // Handle Shopify redirects after 404
+  // 3. Post-routing 404 handler for Shopify redirects (/admin, URL redirects, etc.)
   if (response.status === 404 && storefrontClient) {
     try {
       const redirect = await handleShopifyRedirects({
@@ -127,21 +127,22 @@ export async function handleRequest(
 
   response = new Response(response.body, response);
 
-  // Commit session changes
+  // Commit session changes to response headers
   if (sessionManager?.commit) {
     try {
       const commitHeaders = await sessionManager.commit();
       if (commitHeaders) {
         const headers = new Headers(commitHeaders);
-        headers.forEach((value, name) => {
+        for (const [name, value] of headers) {
           response.headers.append(name, value);
-        });
+        }
       }
     } catch (commitErr) {
       console.error("Error committing session headers:", commitErr);
     }
   }
 
+  // Apply request context response headers (cache-control, personalized state, etc.)
   if (requestContext) {
     try {
       requestContext.applyResponseHeaders(response.headers);

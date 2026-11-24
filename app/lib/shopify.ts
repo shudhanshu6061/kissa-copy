@@ -66,6 +66,10 @@ export async function handleRequest(
       }
     } catch (routeErr) {
       console.error("Error in handleShopifyRoutes:", routeErr);
+      const url = new URL(request.url);
+      if (url.pathname === "/account/authorize" || url.pathname === "/account/login") {
+        return Response.redirect(new URL("/account", request.url).toString(), 302);
+      }
     }
 
     try {
@@ -80,6 +84,12 @@ export async function handleRequest(
     } catch (caErr) {
       console.error("Error checking customer auth state:", caErr);
     }
+  }
+
+  // Fallback for handler-owned account URLs so they never 404
+  const reqUrl = new URL(request.url);
+  if (reqUrl.pathname === "/account/authorize" || reqUrl.pathname === "/account/login") {
+    return Response.redirect(new URL("/account", request.url).toString(), 302);
   }
 
   const customerContextValue: CustomerContextValue | null =

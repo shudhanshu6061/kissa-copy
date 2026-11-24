@@ -1,0 +1,421 @@
+/* KISSA Luxury Customer Account System Styles */
+:root {
+  --kissa-brown: #4e342e;
+  --kissa-ivory: #f8f4e7;
+  --kissa-orange: #cc5500;
+  --kissa-brown-light: #6d4c41;
+  --kissa-cream-card: #fdfbf7;
+  --kissa-border: rgba(78, 52, 46, 0.14);
+  --kissa-border-subtle: rgba(78, 52, 46, 0.08);
+  --kissa-shadow: 0 4px 20px -2px rgba(78, 52, 46, 0.06);
+  --kissa-shadow-hover: 0 8px 30px -4px rgba(78, 52, 46, 0.12);
+}
+
+.kissa-account-page {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 100px 24px 80px;
+  color: var(--kissa-brown);
+  font-family: "Newsreader", Georgia, serif;
+}
+
+/* Account Hero Header */
+.kissa-account-header {
+  border-bottom: 1px solid var(--kissa-border);
+  padding-bottom: 32px;
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .kissa-account-header {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+}
+
+.kissa-account-pretitle {
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--kissa-orange);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.kissa-account-title {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 2.75rem;
+  font-weight: 400;
+  line-height: 1.15;
+  color: var(--kissa-brown);
+  margin: 0 0 8px;
+}
+
+.kissa-account-subtitle {
+  font-size: 1.1rem;
+  color: var(--kissa-brown-light);
+  margin: 0;
+  font-style: italic;
+}
+
+.kissa-account-actions-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kissa-account-logout-btn {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kissa-brown);
+  background: transparent;
+  border: 1px solid var(--kissa-border);
+  padding: 10px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.kissa-account-logout-btn:hover {
+  background: var(--kissa-brown);
+  color: var(--kissa-ivory);
+  border-color: var(--kissa-brown);
+}
+
+/* Navigation Tabs */
+.kissa-account-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--kissa-border);
+  margin-bottom: 40px;
+  padding-bottom: 1px;
+}
+
+.kissa-account-tab {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 12px 20px;
+  color: var(--kissa-brown-light);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.kissa-account-tab:hover {
+  color: var(--kissa-brown);
+}
+
+.kissa-account-tab.active {
+  color: var(--kissa-orange);
+  border-bottom-color: var(--kissa-orange);
+  font-weight: 600;
+}
+
+/* Cards & Surfaces */
+.kissa-card {
+  background: var(--kissa-cream-card);
+  border: 1px solid var(--kissa-border);
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: var(--kissa-shadow);
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.kissa-card:hover {
+  box-shadow: var(--kissa-shadow-hover);
+  border-color: rgba(78, 52, 46, 0.22);
+}
+
+.kissa-card-title {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 400;
+  color: var(--kissa-brown);
+  margin: 0 0 16px;
+}
+
+/* Stat Grid */
+.kissa-grid-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.kissa-stat-label {
+  font-family: "Inter", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--kissa-brown-light);
+  margin-bottom: 8px;
+  display: block;
+}
+
+.kissa-stat-value {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 2rem;
+  color: var(--kissa-brown);
+  margin-bottom: 6px;
+}
+
+.kissa-stat-desc {
+  font-size: 0.95rem;
+  color: var(--kissa-brown-light);
+  margin: 0;
+}
+
+/* Orders List */
+.kissa-order-item {
+  border: 1px solid var(--kissa-border);
+  border-radius: 12px;
+  padding: 24px;
+  background: #ffffff;
+  margin-bottom: 20px;
+  transition: all 0.25s ease;
+}
+
+.kissa-order-item:hover {
+  border-color: rgba(78, 52, 46, 0.3);
+  box-shadow: var(--kissa-shadow);
+}
+
+.kissa-order-header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--kissa-border-subtle);
+  margin-bottom: 16px;
+  gap: 12px;
+}
+
+.kissa-order-title {
+  font-family: "Inter", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--kissa-brown);
+  margin: 0;
+}
+
+.kissa-order-date {
+  font-size: 0.9rem;
+  color: var(--kissa-brown-light);
+  margin-left: 12px;
+}
+
+.kissa-badge {
+  font-family: "Inter", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  display: inline-block;
+}
+
+.kissa-badge-paid {
+  background: rgba(46, 125, 50, 0.1);
+  color: #2e7d32;
+}
+
+.kissa-badge-pending {
+  background: rgba(230, 81, 0, 0.1);
+  color: #e65100;
+}
+
+.kissa-badge-fulfilled {
+  background: rgba(78, 52, 46, 0.1);
+  color: var(--kissa-brown);
+}
+
+.kissa-order-line-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 0;
+}
+
+.kissa-order-thumb {
+  width: 54px;
+  height: 54px;
+  object-fit: cover;
+  border-radius: 8px;
+  background: var(--kissa-ivory);
+  border: 1px solid var(--kissa-border-subtle);
+}
+
+.kissa-order-line-title {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 1.15rem;
+  color: var(--kissa-brown);
+  margin: 0 0 4px;
+}
+
+.kissa-order-line-qty {
+  font-family: "Inter", sans-serif;
+  font-size: 0.8rem;
+  color: var(--kissa-brown-light);
+  margin: 0;
+}
+
+.kissa-order-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--kissa-border-subtle);
+}
+
+.kissa-order-total {
+  font-family: "Inter", sans-serif;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: var(--kissa-brown);
+}
+
+/* Forms & Inputs */
+.kissa-form-group {
+  margin-bottom: 20px;
+}
+
+.kissa-label {
+  display: block;
+  font-family: "Inter", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kissa-brown);
+  margin-bottom: 8px;
+}
+
+.kissa-input {
+  width: 100%;
+  padding: 12px 16px;
+  font-family: "Newsreader", Georgia, serif;
+  font-size: 1rem;
+  color: var(--kissa-brown);
+  background: #ffffff;
+  border: 1px solid var(--kissa-border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.kissa-input:focus {
+  border-color: var(--kissa-orange);
+  box-shadow: 0 0 0 3px rgba(204, 85, 0, 0.12);
+}
+
+.kissa-btn-primary {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #ffffff;
+  background: var(--kissa-orange);
+  border: none;
+  padding: 14px 28px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.kissa-btn-primary:hover {
+  background: #b54900;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(204, 85, 0, 0.25);
+}
+
+.kissa-btn-secondary {
+  font-family: "Inter", sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  color: var(--kissa-brown);
+  background: transparent;
+  border: 1px solid var(--kissa-border);
+  padding: 12px 24px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.kissa-btn-secondary:hover {
+  background: var(--kissa-brown);
+  color: var(--kissa-ivory);
+  border-color: var(--kissa-brown);
+}
+
+/* Empty States */
+.kissa-empty-state {
+  text-align: center;
+  padding: 48px 24px;
+  background: var(--kissa-cream-card);
+  border: 1px dashed var(--kissa-border);
+  border-radius: 16px;
+}
+
+.kissa-empty-title {
+  font-family: "Instrument Serif", Georgia, serif;
+  font-size: 1.8rem;
+  color: var(--kissa-brown);
+  margin: 12px 0 8px;
+}
+
+.kissa-empty-desc {
+  font-size: 1.05rem;
+  color: var(--kissa-brown-light);
+  max-width: 460px;
+  margin: 0 auto 24px;
+  line-height: 1.6;
+}
+
+/* Login Gate Hero */
+.kissa-login-gate {
+  max-width: 520px;
+  margin: 120px auto 80px;
+  padding: 48px 36px;
+  background: var(--kissa-cream-card);
+  border: 1px solid var(--kissa-border);
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: var(--kissa-shadow-hover);
+}
+
+.kissa-login-logo {
+  height: 38px;
+  margin-bottom: 24px;
+}

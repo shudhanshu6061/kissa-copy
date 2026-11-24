@@ -241,6 +241,7 @@ Content sections use `padding: 0 clamp(16px, 4vw, 40px)` for responsive side pad
 | **CollectionHero** | [`app/components/collection/CollectionHero.tsx`](file:///d:/KISSA%20-%20Storefront/app/components/collection/CollectionHero.tsx) | Section kicker label, display title, italic description, search input, category filter pills, sort select, result count |
 | **ProductCard** | [`app/components/collection/ProductCard.tsx`](file:///d:/KISSA%20-%20Storefront/app/components/collection/ProductCard.tsx) | Perfume card — image (4:5), edition badge, specimen label, title, note pills, description, price, "Add to Bag" button |
 | **EmptyState** | [`app/components/collection/EmptyState.tsx`](file:///d:/KISSA%20-%20Storefront/app/components/collection/EmptyState.tsx) | Centred card with logo, heading, body, reset CTA |
+| **TheExperience** | [`app/components/home/TheExperience.tsx`](file:///d:/KISSA%20-%20Storefront/app/components/home/TheExperience.tsx) | Multi-sensory ritual unboxing section ("A real book before the bottle") with 3 interactive steps (Read, Write, Wear) and Hindi poetic micro-line |
 | **Scene (ThreeUI)** | [`src/App.tsx`](file:///d:/KISSA%20-%20Storefront/src/App.tsx) | Full-viewport interactive 3D landing page scene (`MengToSketchbookLandingPage` from ThreeUI) |
 
 ### CSS-Only Component Patterns (in `src/index.css`)
@@ -257,6 +258,7 @@ All styling is done via a single global CSS file — no CSS modules, Tailwind, o
 | **Filter Pill** | `.kissa-filter-btn`, `.kissa-filter-btn.active` | Active = ink background, paper text |
 | **Perfume Card** | `.kissa-perfume-card`, `.kissa-card-media`, `.kissa-card-img`, `.kissa-card-badge`, `.kissa-card-body`, `.kissa-card-title`, `.kissa-note-pill`, `.kissa-card-footer`, `.kissa-add-btn` | Full product card |
 | **Section Header** | `.section-header`, `.section-label`, `.section-title`, `.section-desc` | Centred kicker + title + description (landing page HTML) |
+| **The Experience** | `.experience-section`, `.experience-header`, `.experience-eyebrow`, `.experience-headline`, `.experience-intro`, `.experience-grid`, `.experience-card`, `.experience-microline-banner` | 3-column ritual unboxing journey (Read · Write · Wear) with custom icons, hover state sheen, and poetic micro-line banner |
 | **Coffret Feature** | `.coffret-feature`, `.coffret-card`, `.coffret-media`, `.coffret-body`, `.coffret-btn` | Discovery set banner (landing page HTML) |
 | **Quiz / Scent Diagnosis** | `.quiz-section`, `.quiz-card`, `.quiz-step-dot`, `.quiz-option`, `.quiz-result-box` | 3-step quiz with options grid (landing page HTML) |
 | **Atelier Story** | `.atelier-section`, `.atelier-split`, `.atelier-media`, `.atelier-pillars`, `.pillar-card` | 2-column image + copy (landing page HTML) |

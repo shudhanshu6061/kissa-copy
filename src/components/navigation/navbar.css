@@ -1,0 +1,433 @@
+/* ==========================================================================
+   KISSA Unified Global Navigation Stylesheet
+   Brand Colors:
+     - Deep Brown: #4E342E
+     - Warm Ivory: #F8F4E7
+     - Burnt Orange: #CC5500
+   ========================================================================== */
+
+/* ---------------- 1. Floating Pill Navbar Container ---------------- */
+.kissa-nav-container,
+.glass-nav-container {
+  position: sticky;
+  top: 14px;
+  left: 0;
+  right: 0;
+  z-index: 950;
+  display: flex;
+  justify-content: center;
+  padding: 0 clamp(12px, 3.2vw, 36px);
+  margin-top: 14px;
+  margin-bottom: 24px;
+  pointer-events: none;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .kissa-nav-container,
+  .glass-nav-container {
+    top: 10px;
+    margin-top: 10px;
+    margin-bottom: 16px;
+    padding: 0 12px;
+  }
+}
+
+/* ---------------- 2. Frosted Glass Pill Navbar ---------------- */
+.kissa-glass-navbar,
+.glass-navbar {
+  pointer-events: auto;
+  position: relative;
+  width: 100%;
+  max-width: 1380px;
+  height: 62px;
+  border-radius: 9999px;
+  padding: 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-sizing: border-box;
+  background: linear-gradient(135deg,
+    rgba(255, 252, 248, 0.84) 0%,
+    rgba(248, 244, 231, 0.68) 50%,
+    rgba(255, 252, 248, 0.82) 100%
+  );
+  -webkit-backdrop-filter: blur(28px) saturate(165%);
+  backdrop-filter: blur(28px) saturate(165%);
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow:
+    0 16px 36px -10px rgba(78, 52, 46, 0.12),
+    0 4px 14px rgba(0, 0, 0, 0.04),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
+    inset 0 -1px 1px rgba(255, 255, 255, 0.4);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kissa-glass-navbar::before,
+.glass-navbar::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: 9999px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 60%);
+  pointer-events: none;
+  opacity: 0.95;
+}
+
+/* ---------------- 3. Left Cluster & Menu Toggle ---------------- */
+.kissa-nav-left,
+.glass-nav-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  z-index: 2;
+  position: relative;
+}
+
+.kissa-nav-dropdown-wrapper,
+.glass-nav-dropdown-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Circular Action & Menu Toggle Buttons */
+.kissa-nav-icon-btn,
+.glass-nav-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 1px solid rgba(78, 52, 46, 0.08);
+  box-shadow: 0 2px 7px rgba(78, 52, 46, 0.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  color: #4E342E;
+  padding: 0;
+  outline: none;
+  text-decoration: none;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              background-color 0.2s ease,
+              color 0.2s ease;
+  flex-shrink: 0;
+  z-index: 2;
+}
+
+.kissa-nav-icon-btn:hover,
+.glass-nav-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(78, 52, 46, 0.14);
+  color: #CC5500;
+  background: #ffffff;
+}
+
+.kissa-nav-icon-btn:active,
+.glass-nav-btn:active {
+  transform: scale(0.96);
+}
+
+/* Smooth Icon Transition for Menu Toggle */
+.kissa-menu-icon-wrap {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kissa-menu-toggle-btn.is-active .kissa-menu-icon-wrap {
+  transform: rotate(90deg);
+  color: #CC5500;
+}
+
+/* ---------------- 4. Perfectly Centered Logo ---------------- */
+.kissa-nav-logo,
+.glass-nav-logo {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  z-index: 2;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+}
+
+.kissa-nav-logo:hover,
+.glass-nav-logo:hover {
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.kissa-logo-img,
+.glass-logo-img {
+  height: clamp(26px, 2.8vw, 34px);
+  width: auto;
+  display: block;
+  filter: drop-shadow(0 1px 1px rgba(255, 255, 255, 0.7));
+}
+
+/* ---------------- 5. Right Cluster: Currency, Search, Account, Bag ---------------- */
+.kissa-nav-right,
+.glass-nav-right {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+}
+
+.kissa-nav-actions,
+.glass-nav-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Currency Selector Pill */
+.kissa-currency-selector-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.kissa-currency-select,
+.currency-select {
+  font-family: var(--sans, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+  font-size: 12px;
+  font-weight: 500;
+  color: #4E342E;
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(78, 52, 46, 0.12);
+  border-radius: 9999px;
+  padding: 6px 10px;
+  height: 38px;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 4px rgba(78, 52, 46, 0.05);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  padding-right: 22px;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234E342E' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 7px center;
+  background-size: 12px;
+}
+
+.kissa-currency-select:hover,
+.currency-select:hover {
+  background-color: #ffffff;
+  border-color: rgba(204, 85, 0, 0.35);
+  box-shadow: 0 3px 10px rgba(78, 52, 46, 0.1);
+  color: #CC5500;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23CC5500' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+.kissa-currency-select:focus,
+.currency-select:focus {
+  border-color: #CC5500;
+  box-shadow: 0 0 0 2px rgba(204, 85, 0, 0.15);
+}
+
+/* Cart Quantity Badge */
+.kissa-cart-badge,
+.glass-cart-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  padding: 0 4px;
+  background: #CC5500;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  font-family: sans-serif;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 2px 6px rgba(204, 85, 0, 0.45);
+  pointer-events: none;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.kissa-nav-icon-btn:hover .kissa-cart-badge,
+.glass-nav-btn:hover .glass-cart-badge {
+  transform: scale(1.08);
+}
+
+/* ---------------- 6. Dropdown Navigation Panel (Width: ~313px) ---------------- */
+.kissa-navigation-menu,
+.kissa-menu-nav-dropdown,
+.menu-nav-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  z-index: 1060;
+  width: 313px;
+  max-width: calc(100vw - 28px);
+  background: linear-gradient(145deg,
+    rgba(255, 252, 248, 0.96) 0%,
+    rgba(248, 244, 231, 0.93) 100%
+  );
+  -webkit-backdrop-filter: blur(32px) saturate(180%);
+  backdrop-filter: blur(32px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  border-radius: 24px;
+  box-shadow:
+    0 20px 48px -10px rgba(78, 52, 46, 0.16),
+    0 4px 16px rgba(0, 0, 0, 0.05),
+    inset 0 1.5px 2px rgba(255, 255, 255, 0.95);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  opacity: 0;
+  transform: translateY(-8px) scale(0.98);
+  pointer-events: none;
+  transition: opacity 0.22s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.kissa-navigation-menu.is-open,
+.kissa-menu-nav-dropdown.is-open,
+.menu-nav-dropdown.is-open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+
+/* Dropdown Nav List */
+.kissa-nav-dropdown-list,
+.menu-dropdown-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 0;
+  margin: 0;
+}
+
+/* Individual Dropdown Item Link */
+.kissa-nav-dropdown-item,
+.menu-dropdown-link {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  border-radius: 14px;
+  color: #4E342E;
+  font-family: var(--sans, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+  font-size: 13.5px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-sizing: border-box;
+}
+
+.kissa-nav-dropdown-item:hover,
+.menu-dropdown-link:hover {
+  background: rgba(225, 185, 160, 0.28);
+  color: #3D261C;
+  transform: translateX(3px);
+}
+
+.kissa-nav-dropdown-item.is-active,
+.menu-dropdown-link.is-active {
+  background: rgba(204, 85, 0, 0.12);
+  color: #CC5500;
+  font-weight: 600;
+}
+
+/* Dropdown Item Index */
+.kissa-nav-item-idx,
+.menu-dropdown-link .link-idx {
+  font-family: var(--sans, 'Inter', -apple-system, BlinkMacSystemFont, sans-serif);
+  font-size: 11px;
+  color: #CC5500;
+  letter-spacing: 0.1em;
+  min-width: 28px;
+  font-weight: 600;
+}
+
+.kissa-nav-dropdown-item.is-active .kissa-nav-item-idx,
+.menu-dropdown-link.is-active .link-idx {
+  font-weight: 700;
+  color: #CC5500;
+}
+
+/* Dropdown Item Label */
+.kissa-nav-item-label,
+.menu-dropdown-link .link-label {
+  flex: 1;
+  text-align: left;
+}
+
+/* Dropdown Item Arrow */
+.kissa-nav-item-arrow,
+.menu-dropdown-link .link-arrow {
+  color: rgba(78, 52, 46, 0.35);
+  font-size: 14px;
+  line-height: 1;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), color 0.2s ease;
+}
+
+.kissa-nav-dropdown-item:hover .kissa-nav-item-arrow,
+.menu-dropdown-link:hover .link-arrow {
+  transform: translateX(4px);
+  color: #CC5500;
+}
+
+.kissa-nav-dropdown-item.is-active .kissa-nav-item-arrow,
+.menu-dropdown-link.is-active .link-arrow {
+  transform: translateX(4px);
+  color: #CC5500;
+}
+
+/* ---------------- 7. Mobile Responsive Refinements ---------------- */
+@media (max-width: 640px) {
+  .kissa-glass-navbar,
+  .glass-navbar {
+    height: 56px;
+    padding: 0 8px;
+  }
+
+  .kissa-nav-icon-btn,
+  .glass-nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .kissa-logo-img,
+  .glass-logo-img {
+    height: 24px;
+  }
+
+  .kissa-currency-select,
+  .currency-select {
+    height: 34px;
+    padding: 4px 8px;
+    padding-right: 18px;
+    font-size: 11px;
+  }
+
+  .kissa-navigation-menu,
+  .kissa-menu-nav-dropdown,
+  .menu-nav-dropdown {
+    width: min(313px, calc(100vw - 24px));
+    left: 0;
+  }
+
+  .kissa-nav-dropdown-item,
+  .menu-dropdown-link {
+    padding: 9px 12px;
+    font-size: 13px;
+  }
+}

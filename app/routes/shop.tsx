@@ -3,7 +3,7 @@ import type { Route } from "./+types/shop";
 import { Layout } from "../components/Layout";
 import { storefrontContext } from "../lib/context";
 import { getShopProducts, type ShopProduct, type ProductVariant } from "../lib/products";
-import { addProductToCart } from "../lib/cart";
+import { useCart } from "../context/CartContext";
 
 // Sections
 import { ProductHero } from "../components/shop/ProductHero";
@@ -95,24 +95,32 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
+    const { addToCart, proceedToCheckout } = useCart();
+
     // Handle adding to cart
     const handleAddToCart = async () => {
         if (!selectedVariant) return;
         setIsAdding(true);
 
         try {
-            await addProductToCart({
+            addToCart({
+                id: selectedVariant.id,
+                perfumeId: product?.handle || "naya-panna",
+                title: product?.title || "NAYA PANNA",
+                subtitle: `${product?.concentration || "Extrait de Parfum"} · ${selectedVariant.title}`,
+                size: selectedVariant.selectedOptions?.[0]?.value || selectedVariant.title || "50ml",
+                price: Number(selectedVariant.price?.amount) || 4950,
+                qty: quantity,
+                img: product?.featuredImage?.url || "/landing-pages/meng-to-sketchbook/naya-panna.png",
                 merchandiseId: selectedVariant.id,
-                quantity,
             });
 
             setToastMessage({
-                title: product.title,
+                title: product?.title || "NAYA PANNA",
                 size: selectedVariant.title,
             });
             setShowToast(true);
 
-            // Auto-dismiss toast after 4.5 seconds
             setTimeout(() => {
                 setShowToast(false);
             }, 4500);
@@ -129,22 +137,18 @@ export default function Shop({ loaderData }: Route.ComponentProps) {
         setIsAdding(true);
 
         try {
-            const cart = await addProductToCart({
+            addToCart({
+                id: selectedVariant.id,
+                perfumeId: product?.handle || "naya-panna",
+                title: product?.title || "NAYA PANNA",
+                subtitle: `${product?.concentration || "Extrait de Parfum"} · ${selectedVariant.title}`,
+                size: selectedVariant.selectedOptions?.[0]?.value || selectedVariant.title || "50ml",
+                price: Number(selectedVariant.price?.amount) || 4950,
+                qty: quantity,
+                img: product?.featuredImage?.url || "/landing-pages/meng-to-sketchbook/naya-panna.png",
                 merchandiseId: selectedVariant.id,
-                quantity,
             });
-
-            if (cart.checkoutUrl && cart.checkoutUrl !== "/shop#checkout") {
-                window.location.href = cart.checkoutUrl;
-            } else {
-                // If in dev mock mode, show toast and notice
-                setToastMessage({
-                    title: product.title,
-                    size: selectedVariant.title,
-                });
-                setShowToast(true);
-                alert("Redirecting to secure 256-bit encrypted checkout… [EDIT]");
-            }
+            proceedToCheckout();
         } catch (err) {
             console.error("Buy now failed:", err);
         } finally {

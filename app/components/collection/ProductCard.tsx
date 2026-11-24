@@ -1,4 +1,5 @@
 import type { CollectionProduct } from "../../lib/collection-filters";
+import { useCart } from "../../context/CartContext";
 
 function formatPrice(amount: string, currencyCode: string): string {
     return new Intl.NumberFormat("en-IN", {
@@ -15,6 +16,13 @@ export function ProductCard({
     product: CollectionProduct;
     editionNumber: string;
 }) {
+    let cartCtx: ReturnType<typeof useCart> | null = null;
+    try {
+        cartCtx = useCart();
+    } catch {
+        // fallback
+    }
+
     const { minVariantPrice, maxVariantPrice } = product.priceRange;
     const hasPriceRange = minVariantPrice.amount !== maxVariantPrice.amount;
     const notes =
@@ -89,6 +97,20 @@ export function ProductCard({
                         type="button"
                         className="kissa-add-btn"
                         title={`Add ${product.title} to bag`}
+                        onClick={() => {
+                            if (cartCtx) {
+                                cartCtx.addToCart({
+                                    id: product.id,
+                                    perfumeId: product.handle,
+                                    title: product.title,
+                                    subtitle: "50ml Extrait Flacon",
+                                    size: "50ml",
+                                    price: Number(minVariantPrice.amount) || 1599,
+                                    qty: 1,
+                                    img: product.featuredImage?.url || "/landing-pages/meng-to-sketchbook/naya-panna.png",
+                                });
+                            }
+                        }}
                     >
                         + Add to Bag
                     </button>

@@ -1,5 +1,6 @@
 /**
- * KISSA Parfums — Gifting Services & Corporate Concierge Handlers
+ * KISSA Gifting — Data & Services
+ * "Har nayi shuruaat, ek naya kissa."
  */
 
 export interface CorporateEnquiryInput {
@@ -20,16 +21,12 @@ export interface CorporateEnquiryResult {
 
 /**
  * Single typed submission handler for corporate and bulk gifting enquiries.
- * Can be connected to email dispatch (e.g. Resend / SendGrid), CRM (HubSpot/Salesforce),
- * or an internal Shopify Customer/DraftOrder API.
  */
 export async function submitCorporateEnquiry(
     data: CorporateEnquiryInput
 ): Promise<CorporateEnquiryResult> {
-    // Simulate brief network latency for smooth UI transition
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await new Promise((resolve) => setTimeout(resolve, 600));
 
-    // Validate essential inputs
     if (!data.name || !data.name.trim()) {
         return {
             success: false,
@@ -62,7 +59,6 @@ export async function submitCorporateEnquiry(
         };
     }
 
-    // Server-side or dev mock logging
     console.info("[KISSA Gifting Concierge] Received corporate enquiry:", {
         ...data,
         receivedAt: new Date().toISOString(),
@@ -71,71 +67,38 @@ export async function submitCorporateEnquiry(
     return {
         success: true,
         message:
-            "Your bespoke gifting inquiry has been received. Our concierge will contact you within 24 hours. [EDIT]",
+            "Your bespoke gifting inquiry has been received. Our concierge will contact you within 24 hours.",
     };
 }
 
-export interface GiftingOccasion {
-    id: string;
-    badge: string;
-    title: string;
-    blurb: string;
-    scentHighlight: string;
-    icon: string;
+// -------------------------------------------------------------
+// Section 2: Quick Answer Block (At a Glance)
+// -------------------------------------------------------------
+export interface QuickAnswerSpec {
+    label: string;
+    value: string;
 }
 
-export const GIFTING_OCCASIONS: GiftingOccasion[] = [
+export const QUICK_ANSWER_SPECS: QuickAnswerSpec[] = [
+    { label: "Brand", value: "KISSA" },
+    { label: "Fragrance", value: "NAYA PANNA (Chapter 01)" },
+    { label: "Size", value: "50 ml" },
+    { label: "For", value: "Unisex: him, her, anyone" },
+    { label: "Scent family", value: "Fresh spice, airy tea, creamy woods" },
     {
-        id: "birthday",
-        badge: "CELEBRATION 01",
-        title: "Birthday",
-        blurb: "A spirited sensory tribute for another trip around the sun. Layered with bright equatorial citrus, crushed green spices, and comforting amber resins. [EDIT]",
-        scentHighlight: "Bright Cardamom & Sunlit Citrus",
-        icon: "✦",
+        label: "Inside the box",
+        value: "Hardcover book, 5 story pages, 2 writing pages, perfume bottle",
     },
     {
-        id: "anniversary",
-        badge: "DEVOTION 02",
-        title: "Anniversary",
-        blurb: "Marking milestones of quiet devotion with rich, warm Mysore sandalwood, velvety rose petals, and aged bourbon vanilla. [EDIT]",
-        scentHighlight: "Aged Sandalwood & Wild Rose",
-        icon: "❦",
-    },
-    {
-        id: "wedding",
-        badge: "ROYAL FAVORS 03",
-        title: "Wedding",
-        blurb: "Imperial wedding favors and couple flacons sealed with auspicious red wax, presented with custom couple monograms. [EDIT]",
-        scentHighlight: "Imperial Saffron & White Oud",
-        icon: "⚜",
-    },
-    {
-        id: "festive",
-        badge: "UTSAV 04",
-        title: "Festive (Diwali / Rakhi)",
-        blurb: "Luminous festive celebrations infused with royal saffron, crushed cardamom, and smoky sacred incense from temple courtyards. [EDIT]",
-        scentHighlight: "Monsoon Amber & Royal Cardamom",
-        icon: "❂",
-    },
-    {
-        id: "thankyou",
-        badge: "GRATITUDE 05",
-        title: "Thank You",
-        blurb: "A gesture of profound gratitude. Discreet, deeply thoughtful, and presented with a handwritten wax-sealed thank you note. [EDIT]",
-        scentHighlight: "Airy White Tea & Green Vetiver",
-        icon: "✿",
-    },
-    {
-        id: "justbecause",
-        badge: "SPONTANEOUS 06",
-        title: "Just Because",
-        blurb: "Spontaneous tokens of affection that turn an ordinary weekday into an unforgettable sensory romance. [EDIT]",
-        scentHighlight: "Midnight Guava & Petrichor Rain",
-        icon: "✧",
+        label: "Best for",
+        value: "New job, new city, new venture, graduation, fresh start",
     },
 ];
 
-export interface GiftingBenefit {
+// -------------------------------------------------------------
+// Section 3: Why KISSA (Courage, Connection, Memory)
+// -------------------------------------------------------------
+export interface WhyKissaPillar {
     id: string;
     number: string;
     title: string;
@@ -143,77 +106,328 @@ export interface GiftingBenefit {
     icon: string;
 }
 
-export const GIFTING_BENEFITS: GiftingBenefit[] = [
+export type GiftingBenefit = WhyKissaPillar;
+
+export const WHY_KISSA_PILLARS: WhyKissaPillar[] = [
     {
-        id: "packaging",
+        id: "courage",
         number: "01",
-        title: "Artisanal Wax-Sealed Packaging",
+        title: "Courage",
         description:
-            "Every flacon is cocooned in a debossed textured linen box, wrapped with raw silk twine and stamped with hand-poured botanical sealing wax. [EDIT]",
-        icon: "seal",
+            "KISSA celebrates the decision to begin, even when nobody knows how things will turn out. That first step deserves to be noticed.",
+        icon: "courage",
     },
     {
-        id: "extrait",
+        id: "connection",
         number: "02",
-        title: "28% Extrait de Parfum Strength",
+        title: "Connection",
         description:
-            "Formulated at intense pure perfume concentration, our natural distillations linger on pulse points for 12+ hours with radiant sillage. [EDIT]",
-        icon: "drop",
+            "A story plus a handwritten message turns a bottle of perfume into a gift that could only have come from you.",
+        icon: "connection",
     },
     {
-        id: "delivery",
+        id: "memory",
         number: "03",
-        title: "Pan-India Insured Express Courier",
+        title: "Memory",
         description:
-            "Complimentary express transit across 19,000+ Indian postal codes in discreet outer protection so the surprise arrives uncompromised. [EDIT]",
-        icon: "shipping",
-    },
-    {
-        id: "discreet",
-        number: "04",
-        title: "Strictly Discreet Invoicing",
-        description:
-            "No prices, receipts, or fiscal invoices are ever enclosed inside the gift box. Digital invoices are emailed exclusively to the buyer. [EDIT]",
-        icon: "shield",
+            "Scent is one of the strongest ways we remember. Years later, one spray of NAYA PANNA can bring back the season when everything was new.",
+        icon: "memory",
     },
 ];
 
-export interface GiftingFAQ {
+export const GIFTING_BENEFITS: GiftingBenefit[] = WHY_KISSA_PILLARS;
+
+// -------------------------------------------------------------
+// Section 4: What's Inside
+// -------------------------------------------------------------
+export interface StoryPage {
+    chapter: string;
+    title: string;
+    summary: string;
+}
+
+export const STORY_PAGES: StoryPage[] = [
+    {
+        chapter: "Chapter I",
+        title: "The Moment",
+        summary: "A new page begins quietly.",
+    },
+    {
+        chapter: "Chapter II",
+        title: "The Courage",
+        summary: "You don't need every answer before you take the first step.",
+    },
+    {
+        chapter: "Chapter III",
+        title: "The Wish",
+        summary: "A hope for the people, work and small joys ahead.",
+    },
+    {
+        chapter: "Chapter IV",
+        title: "The Memory",
+        summary: "A reminder to look back one day and remember how this felt.",
+    },
+    {
+        chapter: "Chapter V",
+        title: "The Reveal",
+        summary: "The story ends, and the fragrance appears.",
+    },
+];
+
+// -------------------------------------------------------------
+// Section 5: How It Works (Read, Write, Wear)
+// -------------------------------------------------------------
+export interface HowItWorksStep {
+    step: string;
+    lead: string;
+    title: string;
+    description: string;
+    icon: string;
+}
+
+export const HOW_IT_WORKS_STEPS: HowItWorksStep[] = [
+    {
+        step: "01",
+        lead: "Step 1",
+        title: "Read the Story",
+        description:
+            "They open the book and turn through five short pages about new beginnings, the nervous, exciting, hopeful kind.",
+        icon: "book",
+    },
+    {
+        step: "02",
+        lead: "Step 2",
+        title: "Write the Next Chapter",
+        description:
+            "You write a message before you hand it over. Later, they write their own goal on the second page. Both stay in the book.",
+        icon: "pen",
+    },
+    {
+        step: "03",
+        lead: "Step 3",
+        title: "Discover and Wear the Scent",
+        description:
+            "The last page reveals NAYA PANNA. One spray, and the new chapter has a fragrance of its own.",
+        icon: "scent",
+    },
+];
+
+// -------------------------------------------------------------
+// Section 6: Occasions (7 Moments for New Beginnings)
+// -------------------------------------------------------------
+export interface GiftingOccasion {
+    id: string;
+    badge: string;
+    title: string;
+    description: string;
+    icon: string;
+}
+
+export const GIFTING_OCCASIONS: GiftingOccasion[] = [
+    {
+        id: "new-job",
+        badge: "MOMENT 01",
+        title: "A Gift for a New Job or First Job",
+        description:
+            "An offer letter is a big deal, especially the first one. Give them something to wear on day one, and a page that reminds them someone is proud of them.",
+        icon: "✦",
+    },
+    {
+        id: "new-city",
+        badge: "MOMENT 02",
+        title: "A Gift for Someone Moving to a New City",
+        description:
+            "New streets, new flat, new people. A familiar fragrance and a few kind words can make an unfamiliar place feel a little more like home.",
+        icon: "❦",
+    },
+    {
+        id: "new-venture",
+        badge: "MOMENT 03",
+        title: "A Gift for a New Business or Venture",
+        description:
+            "The first customer. The first launch. For the friend who finally started the thing they kept talking about, KISSA says: we believe in this.",
+        icon: "⚜",
+    },
+    {
+        id: "graduation",
+        badge: "MOMENT 04",
+        title: "A Gift for Graduation",
+        description:
+            "College ends, and real life begins. It's a thoughtful gift for the step between who they were and who they're becoming.",
+        icon: "🎓",
+    },
+    {
+        id: "starting-over",
+        badge: "MOMENT 05",
+        title: "A Gift for Someone Starting Over",
+        description:
+            "Sometimes a new chapter isn't a celebration. It's a quiet decision to try again. KISSA is a gentle way to say: you can begin from here.",
+        icon: "❂",
+    },
+    {
+        id: "new-relationship",
+        badge: "MOMENT 06",
+        title: "A Gift for a New Relationship",
+        description:
+            "For a new love, a new marriage or a new home together. Write the first line of your shared story on the message page.",
+        icon: "✿",
+    },
+    {
+        id: "for-yourself",
+        badge: "MOMENT 07",
+        title: "A Gift for Yourself",
+        description:
+            "You don't need anyone's permission to mark your own beginning. Buy it, read it, write your goal, and wear it on the day you start.",
+        icon: "✧",
+    },
+];
+
+// -------------------------------------------------------------
+// Section 7: Scent Notes
+// -------------------------------------------------------------
+export interface NoteTier {
+    name: string;
+    subtitle: string;
+    summary: string;
+    notes: string[];
+}
+
+export const SCENT_TIERS: NoteTier[] = [
+    {
+        name: "Top Notes",
+        subtitle: "Fresh and Full of Anticipation",
+        summary:
+            "Bergamot, green mandarin and green cardamom. The first spray feels like the morning of something new.",
+        notes: ["Bergamot", "Green Mandarin", "Green Cardamom"],
+    },
+    {
+        name: "Heart Notes",
+        subtitle: "Open and Quietly Warm",
+        summary:
+            "White tea, neroli and a soft, transparent jasmine. Calm, clean and easy to live in.",
+        notes: ["White Tea", "Neroli", "Transparent Jasmine"],
+    },
+    {
+        name: "Base Notes",
+        subtitle: "Smooth and Grounded",
+        summary:
+            "Sandalwood, clean musk, soft amber and a touch of vetiver, for a creamy, steady finish that stays close to the skin.",
+        notes: ["Sandalwood", "Clean Musk", "Soft Amber", "Vetiver"],
+    },
+];
+
+// -------------------------------------------------------------
+// Section 9: Message Ideas
+// -------------------------------------------------------------
+export interface MessageIdea {
+    id: string;
+    context: string;
+    text: string;
+}
+
+export const MESSAGE_IDEAS: MessageIdea[] = [
+    {
+        id: "next-chapter",
+        context: "Next Chapter",
+        text: "To your next chapter. I can't wait to see what you write.",
+    },
+    {
+        id: "new-city",
+        context: "New City",
+        text: "New city, same you. Proud of you, always.",
+    },
+    {
+        id: "new-job",
+        context: "New Job",
+        text: "For the first day at the new job. Wear this and walk in like you belong there, because you do.",
+    },
+    {
+        id: "small-step",
+        context: "Encouragement",
+        text: "You don't need all the answers. One small step is enough.",
+    },
+    {
+        id: "agla-panna",
+        context: "Hindi Poetic",
+        text: "Agla panna tumhara hai. Likh do kuch khoobsurat.",
+    },
+    {
+        id: "new-venture",
+        context: "New Business",
+        text: "For the business you finally started. This is only page one.",
+    },
+];
+
+// -------------------------------------------------------------
+// Section 11: FAQs (All 10 FAQs)
+// -------------------------------------------------------------
+export interface GiftingFAQItem {
     id: string;
     question: string;
     answer: string;
+    linkInfo?: { text: string; url: string };
 }
 
-export const GIFTING_FAQS: GiftingFAQ[] = [
+export const GIFTING_FAQS: GiftingFAQItem[] = [
     {
-        id: "delivery-timelines",
-        question: "What are the delivery timelines for gift parcels across India? [EDIT]",
+        id: "new-job-gift",
+        question: "What is a good perfume gift for someone starting a new job?",
         answer:
-            "Express air courier delivery takes 2–4 business days across major Indian metros (Delhi NCR, Mumbai, Bengaluru, Hyderabad, Chennai, Kolkata) and 3–5 days for tier-2 and tier-3 cities. We dispatch all gifting orders received before 1:00 PM IST on the same business day.",
+            "A good perfume gift for a new job is a fresh, easy-to-wear scent with a personal touch. KISSA's NAYA PANNA comes inside a book with a story about new beginnings and a page for your message, so it celebrates the job, not just the person's taste in perfume.",
     },
     {
-        id: "hide-price",
-        question: "Will the recipient see the price or invoice in the box? [EDIT]",
+        id: "inside-box",
+        question: "What comes inside the KISSA gift box?",
         answer:
-            "Never. All gifting orders are marked for Discreet Gifting Transit. We strictly exclude price tags, invoices, and billing paperwork from inside the packaging. The tax invoice is sent exclusively to the sender's email address.",
+            "The KISSA gift box holds a bound hardcover book with five short story pages, two writing pages (one for your message, one for the receiver's goal) and a 50 ml bottle of NAYA PANNA perfume in a fitted compartment.",
     },
     {
-        id: "calligraphy-messages",
-        question: "How are personalized message cards prepared? [EDIT]",
+        id: "is-unisex",
+        question: "Is NAYA PANNA a unisex perfume?",
         answer:
-            "Each gift message is handwritten by our in-house atelier calligrapher on heavy 300 GSM textured Italian cotton paper using archival black ink. The card is sealed with natural botanical wax bearing the KISSA emblem and tucked alongside the flacon.",
+            "Yes. NAYA PANNA is a unisex perfume made for anyone. Its fresh citrus, cardamom and white tea opening, softened by a creamy sandalwood and musk base, suits men and women alike.",
     },
     {
-        id: "bulk-discounts",
-        question: "Do you offer preferential rates for corporate, wedding, or bulk gifting? [EDIT]",
+        id: "scent-profile",
+        question: "What does NAYA PANNA smell like?",
         answer:
-            "Yes. We offer tiered volume pricing starting at 10 units for corporate gifting, wedding guest favors, and VIP curations. We also support bespoke wax stamp branding, custom sleeves, and multi-destination dispatch. Please fill out our Corporate & Bulk Gifting form above for a tailored quote.",
+            "NAYA PANNA smells fresh, airy and softly warm. It opens with bergamot, green mandarin and cardamom, moves into white tea, neroli and light jasmine, and settles into sandalwood, clean musk, soft amber and vetiver.",
     },
     {
-        id: "custom-schedule",
-        question: "Can I schedule delivery for a specific future date? [EDIT]",
+        id: "personal-message",
+        question: "Can I write a personal message in the KISSA gift?",
         answer:
-            "Yes. You can specify a desired delivery date in the order notes during checkout or contact our concierge via WhatsApp immediately after placing your order. We will time dispatch so your gift arrives right on their special day.",
+            'Yes. The book has a dedicated page called "To your next chapter..." for your handwritten message, with space for your name and the date. There\'s also a second page where the receiver can write their own next goal.',
+    },
+    {
+        id: "price-inquiry",
+        question: "How much does the KISSA perfume gift cost?",
+        answer:
+            "The KISSA perfume gift, NAYA PANNA 50 ml with the complete book, is priced at ₹1,800.",
+    },
+    {
+        id: "for-him-or-her",
+        question: "Is KISSA a good gift for him or for her?",
+        answer:
+            "KISSA works as a perfume gift for him, for her or for anyone, because NAYA PANNA is unisex. It's especially meaningful for someone starting a new job, moving cities, launching a business or beginning again.",
+    },
+    {
+        id: "buy-for-myself",
+        question: "Can I buy KISSA for myself?",
+        answer:
+            'Absolutely. Many beginnings are personal. Read the story, write your own goal on the "My next KISSA" page, and wear the scent as a reminder of the day you started.',
+    },
+    {
+        id: "indian-brand",
+        question: "Is KISSA an Indian brand?",
+        answer:
+            "Yes. KISSA is a contemporary Indian perfume brand that turns life chapters into fragrances. NAYA PANNA is Chapter 01, the first fragrance in its Chapters of Life collection.",
+        linkInfo: { text: "Chapters of Life collection", url: "/shop" },
+    },
+    {
+        id: "delivery-timeline",
+        question: "How long does delivery take?",
+        answer:
+            "Express delivery takes 2–4 business days across major metros (Delhi NCR, Mumbai, Bengaluru, Hyderabad, Chennai, Kolkata) and 3–5 days across 19,000+ PIN codes in India. All orders receive tracking updates.",
     },
 ];
-

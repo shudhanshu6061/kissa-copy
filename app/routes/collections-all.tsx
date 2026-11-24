@@ -17,8 +17,8 @@ import {
 import { CollectionHero } from "../components/collection/CollectionHero";
 import { ProductCard } from "../components/collection/ProductCard";
 import { EmptyState } from "../components/collection/EmptyState";
-import { Navbar } from "../components/Navbar";
-import { Footer } from "../components/Footer";
+import { TheExperience } from "../components/home/TheExperience";
+import { MainLayout } from "../layouts/MainLayout";
 
 const PRODUCTS_PER_PAGE = 50;
 
@@ -173,14 +173,8 @@ export default function CollectionsAll({
     const isLoadingMore = loadMoreFetcher.state !== "idle";
 
     return (
-        <div style={{ position: "relative", minHeight: "100vh" }}>
-            {/* Atmospheric painted wash background from homepage */}
-            <div className="kissa-wash" />
-
-            {/* Navigation Bar with Dropdown Mega Menu & Announcement Bar */}
-            <Navbar cartCount={1} />
-
-            <main style={{ paddingBottom: 60 }}>
+        <MainLayout>
+            <div style={{ paddingBottom: 60 }}>
                 <CollectionHero
                     selectedCategory={selectedCategory}
                     onSelectCategory={(id: CategoryId) =>
@@ -232,6 +226,9 @@ export default function CollectionsAll({
                         {isLoadingMore ? "Loading…" : "Load More Editions"}
                     </button>
                 )}
+
+                {/* The Experience Section */}
+                <TheExperience />
 
                 {/* Discovery Coffret Callout Feature */}
                 <section
@@ -309,10 +306,7 @@ export default function CollectionsAll({
                         </Link>
                     </div>
                 </section>
-            </main>
-
-            {/* Grand Editorial Footer with Centered KISSA Logo */}
-            <Footer />
-        </div>
+            </div>
+        </MainLayout>
     );
 }

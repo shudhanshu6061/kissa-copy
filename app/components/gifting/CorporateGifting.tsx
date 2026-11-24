@@ -99,11 +99,11 @@ export function CorporateGifting() {
                         </span>
 
                         <h2 className="kissa-corporate-title">
-                            Corporate &amp; Milestone Bulk Gifting [EDIT]
+                            Corporate &amp; Milestone Bulk Gifting
                         </h2>
 
                         <p className="kissa-corporate-desc">
-                            Honor leadership retreats, festive client appreciation, and cherished wedding guests with custom-numbered botanical flacons, bespoke monograms, and direct multi-address dispatch across India. [EDIT]
+                            Honor leadership retreats, festive client appreciation, and cherished wedding guests with custom-numbered botanical flacons, bespoke monograms, and direct multi-address dispatch across India.
                         </p>
 
                         <div className="kissa-corporate-pills">
@@ -137,10 +137,10 @@ export function CorporateGifting() {
                             <div className="kissa-corporate-success-card">
                                 <div className="kissa-success-icon-badge">✓</div>
                                 <h3 className="kissa-success-title">
-                                    Inquiry Received [EDIT]
+                                    Inquiry Received
                                 </h3>
                                 <p className="kissa-success-desc">
-                                    Thank you, <strong>{formData.name}</strong>. Your bespoke gifting request for {formData.quantity} flacons has been logged with our concierge desk. We will review your requirements and reach out to <strong>{formData.email}</strong> within 24 business hours with bespoke pricing. [EDIT]
+                                    Thank you, <strong>{formData.name}</strong>. Your bespoke gifting request for {formData.quantity} flacons has been logged with our concierge desk. We will review your requirements and reach out to <strong>{formData.email}</strong> within 24 business hours with bespoke pricing.
                                 </p>
                                 <button
                                     type="button"

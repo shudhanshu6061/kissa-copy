@@ -1,43 +1,52 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "react-router";
 import type { ShopProduct, ProductVariant } from "../../lib/products";
 import { addProductToCart, type CartLineAttribute } from "../../lib/cart";
 import { type GiftingOccasion } from "../../lib/gifting";
 import { AddedToast } from "../shop/AddedToast";
+import { useCart } from "../../context/CartContext";
 
 export interface GiftingBuilderProps {
-    product: ShopProduct;
+    product?: ShopProduct;
     selectedOccasion: GiftingOccasion | null;
+    initialMessage?: string;
     onResetOccasion?: () => void;
 }
 
 export function GiftingBuilder({
     product,
     selectedOccasion,
+    initialMessage = "",
     onResetOccasion,
 }: GiftingBuilderProps) {
-    // Default to the primary full flacon variant
+    // 50 ml NAYA PANNA default variant
     const [selectedVariant, setSelectedVariant] = useState<ProductVariant>(
         product?.variants?.[0] || {
             id: "gid://shopify/ProductVariant/np-50ml",
-            title: "50ml Extrait Flacon",
+            title: "50ml Unisex Perfume with Complete Book",
             availableForSale: true,
-            price: { amount: "4950", currencyCode: "INR" },
+            price: { amount: "1800", currencyCode: "INR" },
             selectedOptions: [{ name: "Size", value: "50ml" }],
         }
     );
 
-    // Gifting configuration states
-    const [hasGiftWrap, setHasGiftWrap] = useState(true);
-    const [giftMessage, setGiftMessage] = useState("");
+    const [giftMessage, setGiftMessage] = useState(initialMessage);
+    const [recipientName, setRecipientName] = useState("");
     const [senderName, setSenderName] = useState("");
     const [isAdding, setIsAdding] = useState(false);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState({ title: "", size: "" });
 
-    const GIFT_WRAP_PRICE = 250; // INR
+    // Sync external message selection from Section 9
+    useEffect(() => {
+        if (initialMessage) {
+            setGiftMessage(initialMessage);
+        }
+    }, [initialMessage]);
+
+    const PRICE_INR = 1800;
     const MESSAGE_MAX_LENGTH = 200;
 
-    // Currency Formatter
     const formatPrice = (amount: number, currencyCode: string = "INR") => {
         return new Intl.NumberFormat("en-IN", {
             style: "currency",
@@ -46,33 +55,39 @@ export function GiftingBuilder({
         }).format(amount);
     };
 
-    const variantPrice = Number(selectedVariant?.price?.amount || 4950);
-    const totalPrice = variantPrice + (hasGiftWrap ? GIFT_WRAP_PRICE : 0);
-    const formattedTotal = formatPrice(
-        totalPrice,
-        selectedVariant?.price?.currencyCode || "INR"
-    );
-
+    const formattedTotal = formatPrice(PRICE_INR);
     const charCount = giftMessage.length;
     const isNearLimit = charCount >= MESSAGE_MAX_LENGTH - 20;
 
-    // Add to cart with Shopify Line Item Attributes
+    const todayDate = new Intl.DateTimeFormat("en-IN", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+    }).format(new Date());
+
+    let cartCtx: ReturnType<typeof useCart> | null = null;
+    try {
+        cartCtx = useCart();
+    } catch {
+        // fallback
+    }
+
     const handleAddGiftToCart = async () => {
         if (!selectedVariant) return;
         setIsAdding(true);
 
         const attributes: CartLineAttribute[] = [
             {
-                key: "Gift Wrap",
-                value: hasGiftWrap
-                    ? `Yes (+${formatPrice(GIFT_WRAP_PRICE)} - Wax-sealed Botanical Wrap)`
-                    : "Standard Luxury Box",
+                key: "Edition",
+                value: "NAYA PANNA (Chapter 01) Hardcover Book Edition",
             },
             {
-                key: "Personalised Message",
-                value:
-                    giftMessage.trim() ||
-                    "None (Complimentary Blank Calligraphy Card enclosed)",
+                key: "Recipient Name",
+                value: recipientName.trim() || "Someone Special",
+            },
+            {
+                key: "To your next chapter message",
+                value: giftMessage.trim() || "Blank (to be handwritten by sender)",
             },
             {
                 key: "Sender Name",
@@ -80,27 +95,41 @@ export function GiftingBuilder({
             },
             {
                 key: "Occasion",
-                value: selectedOccasion?.title || "Bespoke Gifting",
+                value: selectedOccasion?.title || "New Beginnings",
             },
         ];
 
         try {
-            await addProductToCart({
-                merchandiseId: selectedVariant.id,
-                quantity: 1,
-                attributes,
-            });
+            if (cartCtx) {
+                cartCtx.addToCart({
+                    id: `gifting-${selectedVariant.id}-${Date.now()}`,
+                    perfumeId: product?.handle || "naya-panna",
+                    title: "NAYA PANNA Gift Edition",
+                    subtitle: `${recipientName.trim() ? `For ${recipientName.trim()} · ` : ""}Hardcover Book Edition`,
+                    size: "50ml",
+                    price: 1800,
+                    qty: 1,
+                    img: product?.featuredImage?.url || "/landing-pages/meng-to-sketchbook/naya-panna.png",
+                    merchandiseId: selectedVariant.id,
+                    attributes,
+                });
+            } else {
+                await addProductToCart({
+                    merchandiseId: selectedVariant.id,
+                    quantity: 1,
+                    attributes,
+                });
+            }
 
             setToastMessage({
-                title: product.title,
-                size: `${selectedVariant.title} (Gift Edition)`,
+                title: product?.title || "NAYA PANNA",
+                size: "50 ml Unisex Perfume Gift Edition",
             });
             setShowToast(true);
 
-            // Auto-dismiss toast after 5 seconds
             setTimeout(() => {
                 setShowToast(false);
-            }, 5000);
+            }, 4500);
         } catch (err) {
             console.error("Failed to add gift to cart:", err);
         } finally {
@@ -108,339 +137,291 @@ export function GiftingBuilder({
         }
     };
 
-    const flaconImage =
-        product?.featuredImage?.url ||
-        "/landing-pages/meng-to-sketchbook/naya-panna.png";
-
     return (
         <section
             className="kissa-gifting-section"
             id="build-your-gift"
-            aria-label="Build Your Gift Configurator"
+            aria-label="Price, Delivery and Gifting Details"
         >
-            <div className="section-header">
-                <span className="section-label">ATELIER CUSTOMIZATION</span>
-                <h2 className="section-title">Build Your Gift</h2>
-                <p className="section-desc">
-                    Select your flacon, include bespoke wax-sealed botanical wrap, and compose a personalized message card handwritten by our atelier scribe. [EDIT]
+            {/* Header: Section 10 */}
+            <div className="section-header" style={{ textAlign: "center", maxWidth: 840, margin: "0 auto 36px" }}>
+                <span className="section-label">SECTION 10 · DETAILS &amp; ORDERING</span>
+                <h2 className="section-title">Price, Delivery and Gifting Details</h2>
+                <p className="section-desc" style={{ maxWidth: 700, margin: "0 auto" }}>
+                    Everything you need to know before handing over your next chapter.
                 </p>
             </div>
 
+            {/* Three Info Cards: Price, Delivery, Gifting Tip */}
+            <div className="kissa-details-cards-grid" style={{ marginBottom: 40 }}>
+                {/* Price */}
+                <div className="kissa-detail-info-card">
+                    <div className="kissa-info-card-top">
+                        <span className="kissa-info-badge">PRICE</span>
+                        <span className="kissa-info-icon">🏷️</span>
+                    </div>
+                    <h3 className="kissa-info-title">Complete Gift Set</h3>
+                    <div className="kissa-info-price">₹1,800</div>
+                    <p className="kissa-info-desc">
+                        NAYA PANNA, 50 ml, with the complete hardcover book, 5 story pages,
+                        and 2 writing pages.
+                    </p>
+                </div>
+
+                {/* Delivery */}
+                <div className="kissa-detail-info-card">
+                    <div className="kissa-info-card-top">
+                        <span className="kissa-info-badge">DELIVERY</span>
+                        <span className="kissa-info-icon">✈️</span>
+                    </div>
+                    <h3 className="kissa-info-title">Express Pan-India</h3>
+                    <p className="kissa-info-desc">
+                        Express delivery in 2–4 business days across major metros, and 3–5 days across 19,000+ PIN codes.
+                        Complimentary shipping on all gift orders. You'll get an order confirmation and shipping updates
+                        once your gift is on its way.{" "}
+                        <Link to="/contact" className="kissa-inline-link">
+                            View Delivery FAQs &amp; Support
+                        </Link>
+                        .
+                    </p>
+                </div>
+
+                {/* Gifting Tip */}
+                <div className="kissa-detail-info-card kissa-tip-highlight-card">
+                    <div className="kissa-info-card-top">
+                        <span className="kissa-info-badge" style={{ color: "var(--earth)" }}>A SMALL GIFTING TIP</span>
+                        <span className="kissa-info-icon">💡</span>
+                    </div>
+                    <h3 className="kissa-info-title">The Two-Page Ritual</h3>
+                    <p className="kissa-info-desc">
+                        Write your message on the "To your next chapter..." page before you hand
+                        the book over. Leave the "My next KISSA" page blank. That one is theirs.
+                    </p>
+                </div>
+            </div>
+
+            {/* Interactive Book Customizer */}
             <div className="kissa-builder-wrap">
-                <div className="kissa-builder-grid">
-                    {/* Left: Product Stage & Live Calligraphy Preview */}
-                    <div className="kissa-builder-stage">
-                        <div className="kissa-builder-media-box">
-                            <span className="kissa-builder-stage-badge">
-                                {product?.editionBadge || "EDITION 01 · BATCH NO. 248"}
-                            </span>
-                            <img
-                                src={flaconImage}
-                                alt={product?.title || "KISSA artisanal perfume flacon"}
-                                width="520"
-                                height="620"
-                            />
-                        </div>
-
-                        <div className="kissa-builder-stage-info">
-                            <h3 className="kissa-builder-stage-title">
-                                {product?.title || "NAYA PANNA"}
-                            </h3>
-                            <p className="kissa-builder-stage-tagline">
-                                {product?.shortTagline ||
-                                    "Artisanal 28% Extrait de Parfum · Indian Botanical Herbarium [EDIT]"}
-                            </p>
-                        </div>
-
-                        {/* Live Calligraphy Card Preview */}
-                        <div className="kissa-calligraphy-preview-container">
-                            <div className="kissa-calligraphy-card">
-                                <div className="kissa-calligraphy-header">
-                                    <span className="kissa-calligraphy-header-label">
-                                        ✦ ATELIER HANDWRITTEN CORRESPONDENCE
-                                    </span>
-                                    <div
-                                        className="kissa-calligraphy-wax-seal"
-                                        title="Hand-poured KISSA botanical wax seal"
-                                    >
-                                        K
-                                    </div>
-                                </div>
-
-                                <div
-                                    className={`kissa-calligraphy-body ${
-                                        !giftMessage.trim() ? "is-placeholder" : ""
-                                    }`}
-                                >
-                                    {giftMessage.trim()
-                                        ? `“${giftMessage}”`
-                                        : "“Your personalized message will be inscribed by hand here on textured 300 GSM Italian cotton paper…” [EDIT]"}
-                                </div>
-
-                                <div className="kissa-calligraphy-footer">
-                                    {senderName.trim()
-                                        ? `— With warmest regards, ${senderName}`
-                                        : "— With love, [Sender Name]"}
-                                </div>
-                            </div>
-                        </div>
+                <div className="kissa-builder-title-bar">
+                    <div>
+                        <span className="kissa-builder-kicker">INTERACTIVE BOOK PREVIEW</span>
+                        <h3 className="kissa-builder-heading">
+                            Personalise Your Gift Book
+                        </h3>
                     </div>
 
-                    {/* Right: Customization Controls */}
-                    <div className="kissa-builder-controls">
-                        {/* Occasion Indicator */}
-                        {selectedOccasion && (
-                            <div
-                                style={{
-                                    display: "flex",
-                                    alignItems: "center",
-                                    justifyContent: "space-between",
-                                    background: "var(--gold-soft)",
-                                    border: "1px solid rgba(204, 85, 0, 0.2)",
-                                    padding: "10px 16px",
-                                    borderRadius: "12px",
-                                }}
-                            >
-                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <span style={{ color: "var(--earth)" }}>✦</span>
-                                    <span
-                                        style={{
-                                            fontFamily: "var(--sans)",
-                                            fontSize: 12,
-                                            fontWeight: 600,
-                                            color: "var(--earth-dark)",
-                                        }}
-                                    >
-                                        Curated For: {selectedOccasion.title}
+                    {selectedOccasion && (
+                        <div className="kissa-selected-occ-pill">
+                            <span>Occasion: <strong>{selectedOccasion.title}</strong></span>
+                            {onResetOccasion && (
+                                <button
+                                    type="button"
+                                    onClick={onResetOccasion}
+                                    className="kissa-occ-clear-btn"
+                                    title="Clear occasion selection"
+                                >
+                                    ✕
+                                </button>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+                <div className="kissa-builder-grid">
+                    {/* Left Column: Live Book Spread Mockup */}
+                    <div>
+                        <div className="kissa-book-spread">
+                            {/* Page 1 (Left): "To your next chapter..." */}
+                            <div className="kissa-spread-page kissa-page-left">
+                                <div className="kissa-page-header-mark">
+                                    <span className="kissa-page-num">PAGE 06</span>
+                                    <span className="kissa-page-title-label">
+                                        To your next chapter...
                                     </span>
                                 </div>
-                                {onResetOccasion && (
-                                    <button
-                                        type="button"
-                                        onClick={onResetOccasion}
-                                        style={{
-                                            background: "none",
-                                            border: "none",
-                                            color: "var(--ink-soft)",
-                                            fontSize: 11,
-                                            cursor: "pointer",
-                                            textDecoration: "underline",
-                                            fontFamily: "var(--sans)",
-                                        }}
-                                    >
-                                        Change
-                                    </button>
-                                )}
-                            </div>
-                        )}
 
-                        {/* Step 1: Flacon Size / Variant */}
-                        <div className="kissa-customizer-block">
-                            <div className="kissa-customizer-label-row">
-                                <label className="kissa-customizer-label">
-                                    1. Choose Flacon Size
-                                </label>
-                                <span className="kissa-customizer-subtext">
-                                    28% Extrait Concentration
-                                </span>
-                            </div>
-
-                            <div className="kissa-builder-variants-grid">
-                                {product?.variants?.map((v) => {
-                                    const isSelected = selectedVariant.id === v.id;
-                                    return (
-                                        <div
-                                            key={v.id}
-                                            className={`kissa-builder-variant-pill ${
-                                                isSelected ? "is-active" : ""
-                                            }`}
-                                            onClick={() => setSelectedVariant(v)}
-                                            role="button"
-                                            tabIndex={0}
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter" || e.key === " ") {
-                                                    e.preventDefault();
-                                                    setSelectedVariant(v);
-                                                }
-                                            }}
-                                            aria-pressed={isSelected}
-                                        >
-                                            <span className="kissa-builder-variant-name">
-                                                {v.title}
-                                            </span>
-                                            <span className="kissa-builder-variant-price">
-                                                {formatPrice(
-                                                    Number(v.price.amount),
-                                                    v.price.currencyCode
-                                                )}
-                                            </span>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                        </div>
-
-                        {/* Step 2: Premium Gift Wrap Toggle */}
-                        <div className="kissa-customizer-block">
-                            <div className="kissa-customizer-label-row">
-                                <label className="kissa-customizer-label">
-                                    2. Premium Botanical Gift Wrap
-                                </label>
-                                <span className="kissa-customizer-subtext">
-                                    Archival Paper &amp; Wax
-                                </span>
-                            </div>
-
-                            <div
-                                className={`kissa-wrap-toggle-card ${
-                                    hasGiftWrap ? "is-active" : ""
-                                }`}
-                                onClick={() => setHasGiftWrap(!hasGiftWrap)}
-                                role="switch"
-                                aria-checked={hasGiftWrap}
-                                tabIndex={0}
-                                onKeyDown={(e) => {
-                                    if (e.key === "Enter" || e.key === " ") {
-                                        e.preventDefault();
-                                        setHasGiftWrap(!hasGiftWrap);
-                                    }
-                                }}
-                            >
-                                <div className="kissa-wrap-info">
-                                    <div className="kissa-wrap-title-row">
-                                        <span className="kissa-wrap-title">
-                                            Signature Wax-Sealed Wrap
-                                        </span>
-                                        <span className="kissa-wrap-price-badge">
-                                            +{formatPrice(GIFT_WRAP_PRICE)} [EDIT]
-                                        </span>
-                                    </div>
-                                    <p className="kissa-wrap-desc">
-                                        Hand-wrapped in archival textured parchment, tied with raw hand-spun silk twine, and stamped with our botanical wax insignia. [EDIT]
+                                <div className="kissa-handwritten-message-preview">
+                                    <p className="kissa-script-font">
+                                        {giftMessage ||
+                                            "Write a warm message for their new chapter, or leave blank to write by hand with pen..."}
                                     </p>
                                 </div>
 
-                                <div
-                                    className={`kissa-toggle-switch ${
-                                        hasGiftWrap ? "is-on" : ""
-                                    }`}
-                                    aria-hidden="true"
-                                >
-                                    <div className="kissa-toggle-thumb" />
+                                <div className="kissa-page-footer-signoff">
+                                    {recipientName && (
+                                        <div className="kissa-script-to">
+                                            For: <em>{recipientName}</em>
+                                        </div>
+                                    )}
+                                    {senderName && (
+                                        <div className="kissa-script-from">
+                                            With belief: <em>{senderName}</em>
+                                        </div>
+                                    )}
+                                    <div className="kissa-script-date">{todayDate}</div>
+                                </div>
+                            </div>
+
+                            {/* Page 2 (Right): "My next KISSA" + fitted flacon */}
+                            <div className="kissa-spread-page kissa-page-right">
+                                <div className="kissa-page-header-mark">
+                                    <span className="kissa-page-num">PAGE 07</span>
+                                    <span className="kissa-page-title-label">
+                                        My next KISSA
+                                    </span>
+                                </div>
+
+                                <div className="kissa-blank-page-notice">
+                                    <div className="kissa-blank-icon">✎</div>
+                                    <p className="kissa-blank-text">
+                                        <em>"A blank page kept for their own hope, goal or promise, in their own words."</em>
+                                    </p>
+                                </div>
+
+                                <div className="kissa-flacon-fitted-box">
+                                    <img
+                                        src="/naya-panna-unisex-perfume-50ml-kissa.png"
+                                        alt="NAYA PANNA 50 ml unisex perfume bottle resting inside fitted hardcover book compartment"
+                                        className="kissa-fitted-flacon-img"
+                                    />
+                                    <span className="kissa-fitted-label">
+                                        NAYA PANNA · 50 ML
+                                    </span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Step 3: Personalised Message Card */}
-                        <div className="kissa-customizer-block">
-                            <div className="kissa-customizer-label-row">
+                        <div className="kissa-stage-caption">
+                            <span>Open Hardcover Book Spread · Fitted Compartment</span>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Customizer Controls & Order Box */}
+                    <div className="kissa-builder-controls">
+                        {/* Message field */}
+                        <div className="kissa-control-group">
+                            <div className="kissa-control-label-row">
                                 <label
-                                    htmlFor="gifting-message"
-                                    className="kissa-customizer-label"
+                                    htmlFor="gift-message-input"
+                                    className="kissa-control-label"
                                 >
-                                    3. Personalised Calligraphy Card
+                                    Page 1 Message ("To your next chapter...")
                                 </label>
                                 <span
                                     className={`kissa-char-counter ${
-                                        isNearLimit ? "is-near-limit" : ""
+                                        isNearLimit ? "is-warning" : ""
                                     }`}
                                 >
-                                    {charCount} / {MESSAGE_MAX_LENGTH} characters
+                                    {charCount}/{MESSAGE_MAX_LENGTH}
                                 </span>
                             </div>
 
-                            <div className="kissa-message-box-wrap">
-                                <textarea
-                                    id="gifting-message"
-                                    className="kissa-message-textarea"
-                                    placeholder="Write your heartfelt note here… (e.g. Wishing you a year as enchanting as this fragrance. Happy Birthday!) [EDIT]"
-                                    maxLength={MESSAGE_MAX_LENGTH}
-                                    value={giftMessage}
-                                    onChange={(e) => setGiftMessage(e.target.value)}
-                                    rows={3}
+                            <textarea
+                                id="gift-message-input"
+                                rows={4}
+                                maxLength={MESSAGE_MAX_LENGTH}
+                                value={giftMessage}
+                                onChange={(e) => setGiftMessage(e.target.value)}
+                                placeholder="Type a message or select one from the Message Ideas above..."
+                                className="kissa-control-textarea"
+                            />
+                            <p className="kissa-control-hint">
+                                Leave blank if you prefer writing your words with your own pen before handing it over.
+                            </p>
+                        </div>
+
+                        {/* Names */}
+                        <div className="kissa-names-row">
+                            <div className="kissa-control-group">
+                                <label
+                                    htmlFor="recipient-name-input"
+                                    className="kissa-control-label"
+                                >
+                                    Recipient's Name
+                                </label>
+                                <input
+                                    id="recipient-name-input"
+                                    type="text"
+                                    value={recipientName}
+                                    onChange={(e) => setRecipientName(e.target.value)}
+                                    placeholder="e.g. Aryan, Priya"
+                                    className="kissa-control-input"
                                 />
                             </div>
-                            <span
-                                style={{
-                                    fontFamily: "var(--font)",
-                                    fontSize: 12,
-                                    color: "var(--ink-faint)",
-                                    marginTop: 6,
-                                    display: "block",
-                                    fontStyle: "italic",
-                                }}
-                            >
-                                Complimentary · Handwritten by our atelier scribe on 300 GSM cotton paper.
-                            </span>
-                        </div>
 
-                        {/* Step 4: Sender Name */}
-                        <div className="kissa-customizer-block">
-                            <div className="kissa-customizer-label-row">
+                            <div className="kissa-control-group">
                                 <label
-                                    htmlFor="gifting-sender"
-                                    className="kissa-customizer-label"
+                                    htmlFor="sender-name-input"
+                                    className="kissa-control-label"
                                 >
-                                    4. From / Sender Name
+                                    Your Name (Sender)
                                 </label>
-                                <span className="kissa-customizer-subtext">Optional</span>
+                                <input
+                                    id="sender-name-input"
+                                    type="text"
+                                    value={senderName}
+                                    onChange={(e) => setSenderName(e.target.value)}
+                                    placeholder="e.g. Kabir"
+                                    className="kissa-control-input"
+                                />
                             </div>
-
-                            <input
-                                type="text"
-                                id="gifting-sender"
-                                className="kissa-text-input"
-                                placeholder="Your name (e.g. Kabir, The Sharmas) [EDIT]"
-                                value={senderName}
-                                onChange={(e) => setSenderName(e.target.value)}
-                                maxLength={60}
-                            />
                         </div>
 
-                        {/* Summary & Add to Cart */}
-                        <div className="kissa-builder-summary-row">
-                            <div className="kissa-builder-price-group">
-                                <span className="kissa-builder-price-label">
-                                    Total Gift Edition Price
-                                </span>
-                                <span className="kissa-builder-total-price">
-                                    {formattedTotal}
-                                </span>
-                                <span className="kissa-builder-price-note">
-                                    Includes complimentary calligraphy card &amp; taxes
-                                </span>
+                        {/* Price breakdown & CTA */}
+                        <div className="kissa-builder-cta-box">
+                            <div className="kissa-price-breakdown">
+                                <div className="kissa-price-row">
+                                    <span>NAYA PANNA 50 ml Unisex Perfume</span>
+                                    <span>Included</span>
+                                </div>
+                                <div className="kissa-price-row">
+                                    <span>Bound Hardcover Book with 5 Story Pages</span>
+                                    <span>Included</span>
+                                </div>
+                                <div className="kissa-price-row">
+                                    <span>2 Writing Pages for Personal Words &amp; Goal</span>
+                                    <span>Included</span>
+                                </div>
+                                <div className="kissa-price-row">
+                                    <span>Express Pan-India Transit</span>
+                                    <span style={{ color: "var(--earth)" }}>Complimentary</span>
+                                </div>
+                                <div className="kissa-price-row kissa-price-total">
+                                    <span>Total Amount</span>
+                                    <span className="kissa-total-amount">
+                                        {formattedTotal}
+                                    </span>
+                                </div>
                             </div>
 
                             <button
                                 type="button"
-                                className="kissa-builder-add-btn"
+                                className="kissa-add-to-cart-btn"
                                 onClick={handleAddGiftToCart}
                                 disabled={isAdding}
                             >
-                                {isAdding ? (
-                                    <>
-                                        <span>Encapsulating Gift…</span>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span>Add Gift to Bag · {formattedTotal}</span>
-                                        <span>→</span>
-                                    </>
-                                )}
+                                {isAdding ? "Adding to Cart..." : "Gift NAYA PANNA · ₹1,800"}
                             </button>
+
+                            <div className="kissa-builder-perks">
+                                <span>✦ Real Hardcover Book</span>
+                                <span>·</span>
+                                <span>Discreet Invoicing</span>
+                                <span>·</span>
+                                <span>Tracked Pan-India Transit</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            {/* Added Toast Notification */}
+            {/* Added to cart toast */}
             <AddedToast
                 visible={showToast}
-                onClose={() => setShowToast(false)}
                 title={toastMessage.title}
                 size={toastMessage.size}
+                onClose={() => setShowToast(false)}
             />
         </section>
     );
 }
-

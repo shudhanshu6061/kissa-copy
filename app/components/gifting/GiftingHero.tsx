@@ -1,13 +1,13 @@
 import { Link } from "react-router";
 
 export interface GiftingHeroProps {
-    onShopGiftsClick?: () => void;
-    onCorporateClick?: () => void;
+    onGiftClick?: () => void;
+    onInsideClick?: () => void;
 }
 
 export function GiftingHero({
-    onShopGiftsClick,
-    onCorporateClick,
+    onGiftClick,
+    onInsideClick,
 }: GiftingHeroProps) {
     const handleScrollTo = (targetId: string, e: React.MouseEvent) => {
         e.preventDefault();
@@ -18,20 +18,32 @@ export function GiftingHero({
     };
 
     return (
-        <section className="kissa-gifting-section kissa-gifting-hero" aria-label="Gifting Hero">
+        <section
+            className="kissa-gifting-section kissa-gifting-hero"
+            aria-label="A Perfume Gift for Someone's Next Chapter"
+            id="gifting-hero"
+        >
             <div className="kissa-gifting-hero-grid">
                 {/* Left: Text & CTAs */}
                 <div className="kissa-gifting-hero-content">
                     <span className="kissa-gifting-hero-kicker">
-                        <span>✦</span> BESPOKE OFFERINGS · THE ART OF GIFTING MEMORIES
+                        <span>✦</span> CHAPTER 01 · THE BOOK-STYLE PERFUME GIFT
                     </span>
 
                     <h1 className="kissa-gifting-hero-title">
-                        Some memories fade; those remembered in scent endure forever. [EDIT]
+                        A Perfume Gift for Someone's Next Chapter
                     </h1>
 
                     <p className="kissa-gifting-hero-desc">
-                        A bespoke fragrance is an intimate token of remembrance — hand-bottled in numbered flacons, sealed with hand-poured botanical wax, and accompanied by a complimentary handwritten calligraphy card. [EDIT]
+                        A real book, your handwritten words, and{" "}
+                        <Link
+                            to="/shop"
+                            className="kissa-inline-link"
+                            title="Discover NAYA PANNA unisex perfume"
+                        >
+                            NAYA PANNA
+                        </Link>
+                        , a 50 ml unisex perfume for new beginnings.
                     </p>
 
                     <div className="kissa-gifting-hero-actions">
@@ -39,54 +51,61 @@ export function GiftingHero({
                             href="#build-your-gift"
                             className="hero-btn-primary"
                             onClick={(e) => {
-                                if (onShopGiftsClick) {
+                                if (onGiftClick) {
                                     e.preventDefault();
-                                    onShopGiftsClick();
+                                    onGiftClick();
                                 } else {
                                     handleScrollTo("build-your-gift", e);
                                 }
                             }}
                         >
-                            Shop Gifts ↓
+                            Gift NAYA PANNA · ₹1,800
                         </a>
 
                         <a
-                            href="#corporate-gifting"
+                            href="#whats-inside"
                             className="hero-btn-secondary"
                             onClick={(e) => {
-                                if (onCorporateClick) {
+                                if (onInsideClick) {
                                     e.preventDefault();
-                                    onCorporateClick();
+                                    onInsideClick();
                                 } else {
-                                    handleScrollTo("corporate-gifting", e);
+                                    handleScrollTo("whats-inside", e);
                                 }
                             }}
                         >
-                            Corporate &amp; Bulk Enquiries →
+                            See What's Inside ↓
                         </a>
+                    </div>
+
+                    <div className="kissa-hero-tagline-wrap">
+                        <span className="kissa-hero-tagline-star">✦</span>
+                        <p className="kissa-hero-poetic-sub">
+                            Har nayi shuruaat, ek naya kissa.
+                        </p>
                     </div>
 
                     <div className="kissa-gifting-hero-pills">
                         <div className="kissa-hero-pill-item">
-                            <span className="kissa-hero-pill-icon">✦</span>
-                            <span>Complimentary Calligraphy</span>
+                            <span className="kissa-hero-pill-icon">📖</span>
+                            <span>Bound Hardcover Book Box</span>
                         </div>
                         <div className="kissa-hero-pill-item">
-                            <span className="kissa-hero-pill-icon">❦</span>
-                            <span>Discreet Gifting Guarantee</span>
+                            <span className="kissa-hero-pill-icon">✍️</span>
+                            <span>Handwritten Message Page</span>
                         </div>
                         <div className="kissa-hero-pill-item">
-                            <span className="kissa-hero-pill-icon">✈</span>
-                            <span>Express Pan-India Transit</span>
+                            <span className="kissa-hero-pill-icon">✨</span>
+                            <span>50 ml Unisex Eau de Parfum</span>
                         </div>
                     </div>
                 </div>
 
-                {/* Right: Masterpiece Lifestyle Image Stage */}
+                {/* Right: Hero Image */}
                 <div className="kissa-gifting-hero-media">
                     <img
                         src="/landing-pages/meng-to-sketchbook/kissa-perfume-atelier.jpg"
-                        alt="KISSA perfume flacon wrapped in linen gift box with wax seal"
+                        alt="KISSA perfume gift box: open hardcover book with NAYA PANNA perfume bottle inside"
                         width="640"
                         height="760"
                         loading="eager"
@@ -94,16 +113,15 @@ export function GiftingHero({
 
                     <div className="kissa-gifting-hero-floating-card">
                         <div>
-                            <div className="kissa-floating-card-tag">THE ARTISANAL PROMISE</div>
+                            <div className="kissa-floating-card-tag">NAYA PANNA · CHAPTER 01</div>
                             <p className="kissa-floating-card-text">
-                                Wax-sealed parchment &amp; raw silk cord on every gift flacon. [EDIT]
+                                The story ends, and the fragrance appears.
                             </p>
                         </div>
-                        <span style={{ fontSize: 22, color: "var(--earth)" }}>✦</span>
+                        <span className="kissa-floating-card-star">✦</span>
                     </div>
                 </div>
             </div>
         </section>
     );
 }
-

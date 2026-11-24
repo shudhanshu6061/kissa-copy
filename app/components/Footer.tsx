@@ -62,6 +62,9 @@ export function Footer() {
                                 <Link to="/contact" className="kissa-footer__link">Contact</Link>
                             </li>
                             <li className="kissa-footer__item">
+                                <Link to="/faqs" className="kissa-footer__link">FAQs</Link>
+                            </li>
+                            <li className="kissa-footer__item">
                                 <Link to="/about" className="kissa-footer__link">Roadmap</Link>
                             </li>
                             <li className="kissa-footer__item">

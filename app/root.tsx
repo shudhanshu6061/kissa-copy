@@ -9,17 +9,21 @@ import {
 
 import type { Route } from "./+types/root";
 
-import { storefrontContext } from "./lib/context";
+import { storefrontContext, customerAccountContext } from "./lib/context";
 import { handleRequest } from "./lib/shopify";
+import { CartProvider } from "./context/CartContext";
 
-import "../src/index.css";
+import "./styles/global.css";
 
 // Hydrogen Middleware
 export const middleware: Route.MiddlewareFunction[] = [
     ({ request, context }, next) =>
-        handleRequest(request, async (_request, storefrontClient) => {
+        handleRequest(request, async (_request, storefrontClient, customerContext) => {
             if (storefrontClient) {
                 context.set(storefrontContext, storefrontClient);
+            }
+            if (customerContext) {
+                context.set(customerAccountContext, customerContext);
             }
             return next();
         }),
@@ -202,5 +206,9 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
 
 // Main Application
 export default function App() {
-    return <Outlet />;
+    return (
+        <CartProvider>
+            <Outlet />
+        </CartProvider>
+    );
 }
